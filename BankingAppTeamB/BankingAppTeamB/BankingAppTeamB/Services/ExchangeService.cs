@@ -1,9 +1,12 @@
 ﻿using BankingAppTeamB.Models;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BankingAppTeamB.Repositories;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BankingAppTeamB.Services
 {
@@ -18,10 +21,11 @@ namespace BankingAppTeamB.Services
         private readonly Dictionary<int, LockedRate> _lockedRates = new();
         private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(30);
 
-        public ExchangeService(IExchangeRepository exchangeRepository, TransactionPipelineService transactionPipelineService)
+        public ExchangeService(IExchangeRepository exchangeRepository,
+            TransactionPipelineService transactionPipelineService)
         {
-            _exchangeRepository=exchangeRepository;
-            _transactionPipelineService=transactionPipelineService;
+            _exchangeRepository = exchangeRepository;
+            _transactionPipelineService = transactionPipelineService;
         }
 
         public Dictionary<string, decimal> GetLiveRates()
@@ -35,12 +39,12 @@ namespace BankingAppTeamB.Services
                 { "EUR/GBP", 0.86m },
                 { "EUR/RON", 5.09m },
                 { "USD/RON", 4.41m },
-                { "GBP/RON", 5.90m}
+                { "GBP/RON", 5.90m }
             };
 
             //compute the inverses to be easier if changes needed
-            List<string> keys =new List<string>(rates.Keys);
-            foreach(string pair in keys)
+            List<string> keys = new List<string>(rates.Keys);
+            foreach (string pair in keys)
             {
                 string[] parts = pair.Split('/');
                 string inverseKey = $"{parts[1]}/{parts[0]}";
@@ -57,17 +61,17 @@ namespace BankingAppTeamB.Services
             Dictionary<string, decimal> rates = GetLiveRates();
             string key = $"{from}/{to}";
 
-            if(rates.ContainsKey(key))
+            if (rates.ContainsKey(key))
                 return rates[key];
 
             string inverseKey = $"{to}/{from}";
             if (rates.ContainsKey(inverseKey))
-                return 1/ rates[inverseKey];
+                return 1 / rates[inverseKey];
 
             throw new Exception($"rate not found for pair {from}/{to}");
         }
 
-        public LockedRate LockRate(int userId , string from, String to)
+        public LockedRate LockRate(int userId, string from, String to)
         {
             decimal rate = GetRate(from, to);
 
@@ -78,11 +82,12 @@ namespace BankingAppTeamB.Services
                 Rate = rate,
                 LockedAt = DateTime.UtcNow
             };
-            _lockedRates[userId]= lockedRate;
+            _lockedRates[userId] = lockedRate;
             return lockedRate;
         }
 
-        public bool IsRateLockValid(int userId) {
+        public bool IsRateLockValid(int userId)
+        {
             if (!_lockedRates.ContainsKey(userId))
                 return false;
             return !_lockedRates[userId].IsExpired();
@@ -94,15 +99,49 @@ namespace BankingAppTeamB.Services
             return Math.Max(0.50m, percentage);
         }
 
-        public decimal CalculateTargetAmount(decimal sourceAmount,decimal rate)
-        {   
-            decimal commission= CalculateCommission(sourceAmount);
+        public decimal CalculateTargetAmount(decimal sourceAmount, decimal rate)
+        {
+            decimal commission = CalculateCommission(sourceAmount);
             return sourceAmount * rate - commission;
         }
 
 
+        public List<RateAlert> GetUserAlerts(int userId)
+        {
+            return _exchangeRepository.GetUserActiveAlerts(userId);
+        }
 
+        public RateAlert CreateAlert(int userId, string source, string target, decimal rate, bool isBuyAlert)
+        {
+            if (source.IsNullOrEmpty())
+            {
+                throw new ArgumentException("source currency cannot be null or empty");
+            }
 
+            if (target.IsNullOrEmpty())
+            {
+                throw new ArgumentException("target currency cannot be null or empty");
+            }
+
+            if (source.Equals(target))
+            {
+                throw new  ArgumentException("source currency cannot be the same as target currency");
+            }
+
+            if (rate <= 0)
+            {
+                throw new ArgumentException("rate cannot be zero or negative");
+            }
+
+            RateAlert rateAlert = new RateAlert(userId, source, target, rate, isBuyAlert);
+
+            return _exchangeRepository.AddAlert(rateAlert);
+        }
+
+        public void DeleteAlert(int id)
+        {
+            _exchangeRepository.DeleteAlert(id);
+        }
 
     }
 }
