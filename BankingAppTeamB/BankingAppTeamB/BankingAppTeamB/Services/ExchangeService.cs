@@ -7,6 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using BankingAppTeamB.Repositories;
 using Microsoft.IdentityModel.Tokens;
+using BankingAppTeamB.Models.DTOs;
+using BankingAppTeamB.Mocks;
+
 
 namespace BankingAppTeamB.Services
 {
@@ -21,16 +24,21 @@ namespace BankingAppTeamB.Services
         private readonly Dictionary<int, LockedRate> _lockedRates = new();
         private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(30);
 
-        public ExchangeService(IExchangeRepository exchangeRepository,
+
+
+
+        public ExchangeService(IExchangeRepository exchangeRepository, 
             TransactionPipelineService transactionPipelineService)
         {
             _exchangeRepository = exchangeRepository;
             _transactionPipelineService = transactionPipelineService;
         }
 
+
+
         public Dictionary<string, decimal> GetLiveRates()
         {
-            if (_cachedRates != null && DateTime.UtcNow - _ratesLastFetched < CacheDuration)
+            if (_cachedRates != null && DateTime.Now - _ratesLastFetched < CacheDuration)
                 return _cachedRates;
 
             Dictionary<string, decimal> rates = new Dictionary<string, decimal>
@@ -52,7 +60,7 @@ namespace BankingAppTeamB.Services
             }
 
             _cachedRates = rates;
-            _ratesLastFetched = DateTime.UtcNow;
+            _ratesLastFetched = DateTime.Now;
             return _cachedRates;
         }
 
@@ -80,7 +88,7 @@ namespace BankingAppTeamB.Services
                 UserId = userId,
                 CurrencyPair = $"{from}/{to}",
                 Rate = rate,
-                LockedAt = DateTime.UtcNow
+                LockedAt = DateTime.Now
             };
             _lockedRates[userId] = lockedRate;
             return lockedRate;
@@ -103,6 +111,59 @@ namespace BankingAppTeamB.Services
         {
             decimal commission = CalculateCommission(sourceAmount);
             return sourceAmount * rate - commission;
+        }
+
+        public ExchangeTransaction ExecuteExchange(ExchangeDto dto)
+        {
+            if (!IsRateLockValid(dto.UserId))
+                throw new Exception("No valid rate lock found or the 3-second window has expired.");
+
+            LockedRate lockedRateEntry = _lockedRates[dto.UserId];
+
+            decimal commission = CalculateCommission(dto.SourceAmount);
+            decimal targetAmount=CalculateTargetAmount(dto.SourceAmount, lockedRateEntry.Rate);
+
+            PipelineContext context = new PipelineContext { 
+                    UserId=dto.UserId,
+                    SourceAccountId=dto.SourceAccountId,
+                    Amount=dto.SourceAmount,
+                    Currency=dto.SourceCurrency,
+                    Type="Exchange",
+                    Fee=0,
+                    CounterpartyName=$"Exchange to {dto.TargetCurrency}",
+                    RelatedEntityType="Exchange",
+                    RelatedEntityId=0
+
+                };
+
+            Transaction transactionLog =_transactionPipelineService.RunPipeline(context);
+            _transactionPipelineService.GetAccountService().CreditAccount(dto.TargetAccountId, targetAmount);
+
+
+            ExchangeTransaction exchangeTransaction = new ExchangeTransaction
+            {
+                UserId = dto.UserId,
+                SourceAccountId = dto.SourceAccountId,
+                TargetAccountId = dto.TargetAccountId,
+                TransactionId = transactionLog.Id, 
+                SourceCurrency = dto.SourceCurrency,
+                TargetCurrency = dto.TargetCurrency,
+                SourceAmount = dto.SourceAmount,
+                TargetAmount = targetAmount,
+                ExchangeRate = lockedRateEntry.Rate,
+                Commission = commission,
+                RateLockedAt = lockedRateEntry.LockedAt,
+                Status = TransferStatus.Completed,
+                CreatedAt = DateTime.Now
+            };
+
+            _exchangeRepository.Add(exchangeTransaction);
+            _lockedRates.Remove(dto.UserId);
+
+            return exchangeTransaction;
+
+
+
         }
 
 
