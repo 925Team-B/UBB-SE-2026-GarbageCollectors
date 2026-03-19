@@ -2,6 +2,9 @@ using BankingAppTeamB.Models;
 using BankingAppTeamB.Repositories;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
+using System.Numerics;
+using System.Text;
 
 namespace BankingAppTeamB.Services
 {
@@ -70,7 +73,34 @@ namespace BankingAppTeamB.Services
             if (iban.Length < 15 || iban.Length > 34) return false;
             if (!char.IsLetter(iban[0]) || !char.IsLetter(iban[1])) return false;
             if (!char.IsDigit(iban[2]) || !char.IsDigit(iban[3])) return false;
-            return true;
+            /*
+              checksum modulo 97 explained: (Wikipedia)
+              Reorder: Move the first four characters(country code + check digits) to the end of the string.
+              Convert: Replace letters with digits(A= 10, B= 11, ..., Z = 35).
+              Calculate: Interpret the resulting string as a large integer and compute its remainder when divided by 97(using Big Integer math).
+              Validate: If the remainder is
+,             the IBAN is valid.
+            */
+            string rearrangedIban = iban.Substring(4) + iban.Substring(0, 4);
+            StringBuilder numericIban = new System.Text.StringBuilder();
+            foreach (char c in rearrangedIban)
+            {
+                if (char.IsLetter(c)){
+                    numericIban.Append(c - 'A' + 10);
+                }
+                else if (char.IsDigit(c)){
+                    numericIban.Append(c);
+                }
+                else{
+                    // If there's a special character somehow, it's invalid
+                    return false;
+                }
+            }
+            if (System.Numerics.BigInteger.TryParse(numericIban.ToString(), out System.Numerics.BigInteger giantNumber)){
+                return giantNumber % 97 == 1;
+            }
+
+            return false;
         }
 
         public string GetBankNameFromIBAN(string iban)
