@@ -6,8 +6,8 @@ namespace BankingAppTeamB.Models
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public string Name { get; set; }
-        public string IBAN { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string IBAN { get; set; } = string.Empty;
         public string? BankName { get; set; }
         public DateTime? LastTransferDate { get; set; }
         public decimal TotalAmountSent { get; set; }
