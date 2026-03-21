@@ -1,6 +1,9 @@
 using BankingAppTeamB.Models;
 using BankingAppTeamB.Repositories;
+using BankingAppTeamB.Mocks;
+
 using BankingAppTeamB.Services;
+
 using System;
 
 namespace BankingAppTeamB.Services
@@ -8,12 +11,18 @@ namespace BankingAppTeamB.Services
     public class TransactionPipelineService
     {
         private readonly ITransactionRepository transactionRepo;
-        private readonly AccountService accountService;
+        // private readonly AccountService accountService;
 
+        /*
         public TransactionPipelineService(ITransactionRepository transactionRepo, AccountService accountService)
         {
             this.transactionRepo = transactionRepo;
             this.accountService = accountService;
+        } */
+
+        public TransactionPipelineService(ITransactionRepository transactionRepo)
+        {
+            this.transactionRepo = transactionRepo;
         }
 
         public ValidationResult Validate(PipelineContext ctx)
@@ -24,7 +33,8 @@ namespace BankingAppTeamB.Services
             if (ctx.Currency == null || ctx.Currency.Length != 3)
                 return ValidationResult.Failure("Currency code must be exactly 3 characters.");
 
-            if (!accountService.IsAccountValid(ctx.SourceAccountId))
+            // if (!accountService.IsAccountValid(ctx.SourceAccountId))
+            if (!AccountService.IsAccountValid(ctx.SourceAccountId))
                 return ValidationResult.Failure("Source account is invalid or does not exist.");
 
             return ValidationResult.Success();
@@ -43,7 +53,8 @@ namespace BankingAppTeamB.Services
             try
             {
                 decimal totalDebit = ctx.Amount + ctx.Fee;
-                accountService.DebitAccount(ctx.SourceAccountId, totalDebit);
+                // accountService.DebitAccount(ctx.SourceAccountId, totalDebit);
+                AccountService.DebitAccount(ctx.SourceAccountId, totalDebit);
                 return ExecutionResult.Success();
             }
             catch (Exception ex)
@@ -84,7 +95,8 @@ namespace BankingAppTeamB.Services
                 Direction = "Debit",
                 Amount = ctx.Amount,
                 Currency = ctx.Currency,
-                BalanceAfter = accountService.GetBalance(ctx.SourceAccountId),
+                // BalanceAfter = accountService.GetBalance(ctx.SourceAccountId),
+                BalanceAfter = AccountService.GetBalance(ctx.SourceAccountId),
                 CounterpartyName = ctx.CounterpartyName,
                 Fee = ctx.Fee,
                 Status = "Completed",

@@ -57,7 +57,7 @@ namespace BankingAppTeamB.Services
                 Currency          = dto.Currency,
                 Fee               = 0,
                 Reference         = dto.Reference,
-                Status            = "Completed",
+                Status            = TransferStatus.Completed,
                 CreatedAt         = DateTime.UtcNow
             };
 
