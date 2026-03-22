@@ -1,7 +1,9 @@
+using BankingAppTeamB.Mocks;
 using BankingAppTeamB.Models;
 using BankingAppTeamB.Repositories;
 using BankingAppTeamB.Services;
 using System;
+using BankingAppTeamB.Mocks;
 
 namespace BankingAppTeamB.Services
 {
@@ -90,8 +92,13 @@ namespace BankingAppTeamB.Services
                 Status = "Completed",
                 RelatedEntityType = ctx.RelatedEntityType,
                 RelatedEntityId = ctx.RelatedEntityId,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now
             };
+        }
+
+        public AccountService GetAccountService()
+        {
+            return accountService;
         }
     }
 }

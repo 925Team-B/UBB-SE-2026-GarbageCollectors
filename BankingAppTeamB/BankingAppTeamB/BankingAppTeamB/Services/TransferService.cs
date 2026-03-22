@@ -58,7 +58,7 @@ namespace BankingAppTeamB.Services
                 Fee               = 0,
                 Reference         = dto.Reference,
                 Status            = "Completed",
-                CreatedAt         = DateTime.UtcNow
+                CreatedAt         = DateTime.Now
             };
 
             transferRepo.Add(transfer);

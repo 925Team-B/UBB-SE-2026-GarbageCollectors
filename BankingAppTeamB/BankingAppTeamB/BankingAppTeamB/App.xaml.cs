@@ -15,6 +15,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using BankingAppTeamB.Configuration;
 using Microsoft.Data.SqlClient;
 using BankingAppTeamB.Data;
 
@@ -46,6 +47,7 @@ namespace BankingAppTeamB
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             DatabaseInitializer.Initialize();
+            ServiceLocator.Initialize();
             _window = new MainWindow();
             _window.Activate();
         }
