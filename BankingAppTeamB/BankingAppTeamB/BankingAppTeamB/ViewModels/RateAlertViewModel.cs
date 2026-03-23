@@ -18,7 +18,7 @@ namespace BankingAppTeamB.ViewModels
         private ObservableCollection<RateAlert> _alerts = new();
         private string _baseCurrency = string.Empty;
         private string _targetCurrency = string.Empty;
-        private decimal _targetRate;
+        private string _targetRateText = string.Empty;
         private string _errorMessage = string.Empty;
         private Dictionary<string, decimal> _liveRates = new();
 
@@ -40,10 +40,10 @@ namespace BankingAppTeamB.ViewModels
             set => SetProperty(ref _targetCurrency, value);
         }
 
-        public decimal TargetRate
+        public string TargetRateText
         {
-            get => _targetRate;
-            set => SetProperty(ref _targetRate, value);
+            get => _targetRateText;
+            set => SetProperty(ref _targetRateText, value);
         }
 
         public string ErrorMessage
@@ -84,6 +84,18 @@ namespace BankingAppTeamB.ViewModels
         {
             var rates = await Task.Run(() => _exchangeService.GetLiveRates());
             LiveRates = rates;
+
+            foreach (var alert in Alerts)
+            {
+                var currentRate = _exchangeService.GetRate(alert.BaseCurrency, alert.TargetCurrency);
+
+                if (!alert.IsBuyAlert && currentRate > alert.TargetRate)
+                    alert.IsTriggered = true;
+                else if (alert.IsBuyAlert && currentRate <= alert.TargetRate)
+                    alert.IsTriggered = true;
+                else
+                    alert.IsTriggered = false;
+            }
         }
 
         private async Task CreateAlertAsync()
@@ -101,22 +113,22 @@ namespace BankingAppTeamB.ViewModels
                 return;
             }
 
-            if (TargetRate <= 0)
+            if (!decimal.TryParse(TargetRateText, out decimal parsedRate) || parsedRate <= 0)
             {
-                ErrorMessage = "Target rate must be greater than zero.";
+                ErrorMessage = "Target rate must be a valid number greater than zero.";
                 return;
             }
 
             try
             {
                 var newAlert = await Task.Run(() =>
-                    _exchangeService.CreateAlert(_userId, BaseCurrency, TargetCurrency, TargetRate, false));
+                    _exchangeService.CreateAlert(_userId, BaseCurrency, TargetCurrency, parsedRate, false));
 
                 Alerts.Add(newAlert);
 
                 BaseCurrency = string.Empty;
                 TargetCurrency = string.Empty;
-                TargetRate = 0;
+                TargetRateText = string.Empty;
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)

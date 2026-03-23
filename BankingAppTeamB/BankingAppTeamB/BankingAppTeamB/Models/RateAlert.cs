@@ -1,18 +1,35 @@
 ﻿using System;
+using System.ComponentModel;
 
 
 namespace BankingAppTeamB.Models
 {
-    public class RateAlert
+    public class RateAlert : INotifyPropertyChanged
     {
         public int Id { get; set; }
         public int UserId { get; set; }
         public string BaseCurrency {  get; set; }
         public string TargetCurrency { get; set; }
         public decimal TargetRate { get; set; }
-        public bool IsTriggered { get; set; }
+       
         public DateTime CreatedAt { get; set; }
         public bool IsBuyAlert { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private bool _isTriggered;
+
+        public bool IsTriggered
+        {
+            get => _isTriggered;
+            set
+            {
+                if (_isTriggered != value)
+                {
+                    _isTriggered = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsTriggered)));
+                }
+            }
+        }
 
         public RateAlert(int userId, string baseCurrency, string targetCurrency, decimal rate, bool isBuyAlert)
         {

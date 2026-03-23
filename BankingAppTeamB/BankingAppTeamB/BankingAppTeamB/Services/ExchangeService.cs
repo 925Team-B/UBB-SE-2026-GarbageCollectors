@@ -49,6 +49,7 @@ namespace BankingAppTeamB.Services
             };
 
             //compute the inverses to be easier if changes needed
+            
             List<string> keys = new List<string>(rates.Keys);
             foreach (string pair in keys)
             {
@@ -56,6 +57,7 @@ namespace BankingAppTeamB.Services
                 string inverseKey = $"{parts[1]}/{parts[0]}";
                 rates[inverseKey] = 1 / rates[pair];
             }
+            
 
             _cachedRates = rates;
             _ratesLastFetched = DateTime.Now;

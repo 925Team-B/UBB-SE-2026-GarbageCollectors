@@ -2,6 +2,7 @@
 using Microsoft.UI.Xaml.Data;
 using System;
 
+
 namespace BankingAppTeamB.Converters
 {
     public class BoolToVisibilityConverter : IValueConverter
@@ -11,5 +12,6 @@ namespace BankingAppTeamB.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
             => value is Visibility v && v == Visibility.Visible;
+
     }
 }

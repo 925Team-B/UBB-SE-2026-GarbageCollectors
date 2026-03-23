@@ -108,11 +108,11 @@ namespace BankingAppTeamB.Services
             };
         }
 
-        /*
+        
         public AccountService GetAccountService()
         {
             return accountService;
         }
-        */
+        
     }
 }
