@@ -84,6 +84,18 @@ namespace BankingAppTeamB.ViewModels
         {
             var rates = await Task.Run(() => _exchangeService.GetLiveRates());
             LiveRates = rates;
+
+            foreach (var alert in Alerts)
+            {
+                var currentRate = _exchangeService.GetRate(alert.BaseCurrency, alert.TargetCurrency);
+
+                if (!alert.IsBuyAlert && currentRate > alert.TargetRate)
+                    alert.IsTriggered = true;
+                else if (alert.IsBuyAlert && currentRate <= alert.TargetRate)
+                    alert.IsTriggered = true;
+                else
+                    alert.IsTriggered = false;
+            }
         }
 
         private async Task CreateAlertAsync()
