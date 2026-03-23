@@ -1,7 +1,12 @@
+using BankingAppTeamB.Mocks;
 using BankingAppTeamB.Models;
 using BankingAppTeamB.Repositories;
+using BankingAppTeamB.Mocks;
+
 using BankingAppTeamB.Services;
+
 using System;
+using BankingAppTeamB.Mocks;
 
 namespace BankingAppTeamB.Services
 {
@@ -10,11 +15,17 @@ namespace BankingAppTeamB.Services
         private readonly ITransactionRepository transactionRepo;
         private readonly AccountService accountService;
 
+        
         public TransactionPipelineService(ITransactionRepository transactionRepo, AccountService accountService)
         {
             this.transactionRepo = transactionRepo;
             this.accountService = accountService;
-        }
+        } 
+
+        // public TransactionPipelineService(ITransactionRepository transactionRepo)
+        // {
+        //     this.transactionRepo = transactionRepo;
+        // }
 
         public ValidationResult Validate(PipelineContext ctx)
         {
@@ -25,6 +36,7 @@ namespace BankingAppTeamB.Services
                 return ValidationResult.Failure("Currency code must be exactly 3 characters.");
 
             if (!accountService.IsAccountValid(ctx.SourceAccountId))
+            // if (!AccountService.IsAccountValid(ctx.SourceAccountId))
                 return ValidationResult.Failure("Source account is invalid or does not exist.");
 
             return ValidationResult.Success();
@@ -44,6 +56,7 @@ namespace BankingAppTeamB.Services
             {
                 decimal totalDebit = ctx.Amount + ctx.Fee;
                 accountService.DebitAccount(ctx.SourceAccountId, totalDebit);
+                // AccountService.DebitAccount(ctx.SourceAccountId, totalDebit);
                 return ExecutionResult.Success();
             }
             catch (Exception ex)
@@ -85,13 +98,21 @@ namespace BankingAppTeamB.Services
                 Amount = ctx.Amount,
                 Currency = ctx.Currency,
                 BalanceAfter = accountService.GetBalance(ctx.SourceAccountId),
+                // BalanceAfter = AccountService.GetBalance(ctx.SourceAccountId),
                 CounterpartyName = ctx.CounterpartyName,
                 Fee = ctx.Fee,
                 Status = "Completed",
                 RelatedEntityType = ctx.RelatedEntityType,
                 RelatedEntityId = ctx.RelatedEntityId,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now
             };
         }
+
+        
+        public AccountService GetAccountService()
+        {
+            return accountService;
+        }
+        
     }
 }

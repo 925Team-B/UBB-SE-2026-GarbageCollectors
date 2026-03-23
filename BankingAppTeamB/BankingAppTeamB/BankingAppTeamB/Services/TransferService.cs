@@ -19,9 +19,9 @@ namespace BankingAppTeamB.Services
             TransactionPipelineService pipeline,
             ExchangeService? exchangeService = null)
         {
-            this.transferRepo    = transferRepo;
+            this.transferRepo = transferRepo;
             this.beneficiaryRepo = beneficiaryRepo;
-            this.pipeline        = pipeline;
+            this.pipeline = pipeline;
             this.exchangeService = exchangeService;
         }
 
@@ -32,36 +32,49 @@ namespace BankingAppTeamB.Services
 
             var context = new PipelineContext
             {
-                UserId             = dto.UserId,
-                SourceAccountId    = dto.SourceAccountId,
-                Amount             = dto.Amount,
-                Currency           = dto.Currency,
-                Type               = "Transfer",
-                Fee                = 0,
-                CounterpartyName   = dto.RecipientName,
-                RelatedEntityType  = "Transfer",
-                RelatedEntityId    = 0
+                UserId = dto.UserId,
+                SourceAccountId = dto.SourceAccountId,
+                Amount = dto.Amount,
+                Currency = dto.Currency,
+                Type = "Transfer",
+                Fee = 0,
+                CounterpartyName = dto.RecipientName,
+                RelatedEntityType = "Transfer",
+                RelatedEntityId = 0
             };
 
             var transaction = pipeline.RunPipeline(context, dto.TwoFAToken);
 
             var transfer = new Transfer
             {
-                UserId            = dto.UserId,
-                SourceAccountId   = dto.SourceAccountId,
-                TransactionId     = transaction.Id,
-                RecipientName     = dto.RecipientName,
-                RecipientIBAN     = dto.RecipientIBAN,
+                UserId = dto.UserId,
+                SourceAccountId = dto.SourceAccountId,
+                TransactionId = transaction.Id,
+                RecipientName = dto.RecipientName,
+                RecipientIBAN = dto.RecipientIBAN,
                 RecipientBankName = GetBankNameFromIBAN(dto.RecipientIBAN),
                 Amount            = dto.Amount,
                 Currency          = dto.Currency,
                 Fee               = 0,
                 Reference         = dto.Reference,
-                Status            = "Completed",
+                Status            = TransferStatus.Completed,
                 CreatedAt         = DateTime.UtcNow
             };
 
             transferRepo.Add(transfer);
+
+            // newly added
+            var beneficiaries = beneficiaryRepo.GetByUserId(dto.UserId);
+            var match = beneficiaries.Find(b => b.IBAN == dto.RecipientIBAN);
+            if (match != null)
+            {
+                match.TransferCount++;
+                match.TotalAmountSent += dto.Amount;
+                match.LastTransferDate = DateTime.UtcNow;
+                beneficiaryRepo.Update(match);
+            }
+            // end of newly added
+
             return transfer;
         }
 
@@ -87,7 +100,7 @@ namespace BankingAppTeamB.Services
                 "GB" => "UK Bank",
                 "FR" => "French Bank",
                 "US" => "US Bank",
-                _    => "International Bank"
+                _ => "International Bank"
             };
         }
 
@@ -108,7 +121,7 @@ namespace BankingAppTeamB.Services
             decimal rate = rates[pair];
             return new FxPreview
             {
-                Rate            = rate,
+                Rate = rate,
                 ConvertedAmount = Math.Round(amt * rate, 2)
             };
         }

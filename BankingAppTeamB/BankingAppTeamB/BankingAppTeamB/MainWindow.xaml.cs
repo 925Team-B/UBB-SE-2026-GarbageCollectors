@@ -1,34 +1,33 @@
 using BankingAppTeamB.Services;
+using BankingAppTeamB.Views;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace BankingAppTeamB
 {
-    /// <summary>
-    /// An empty window that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainWindow : Window
     {
         public MainWindow()
         {
-            InitializeComponent();
+            this.InitializeComponent();
             NavigationService.Frame = MainFrame;
+            NavView.SelectedItem = NavView.MenuItems[0];
+        }
 
+        private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+        {
+            var item = args.SelectedItem as NavigationViewItem;
+            if (item == null) return;
+
+            switch (item.Tag?.ToString())
+            {
+                case "transfer": NavigationService.NavigateTo<TransferPage>(); break;
+                case "beneficiaries": NavigationService.NavigateTo<BeneficiariesPage>(); break;
+                case "bill": NavigationService.NavigateTo<BillPayPage>(); break;
+                case "recurring": NavigationService.NavigateTo<RecurringPaymentsPage>(); break;
+                case "exchange": NavigationService.NavigateTo<FXPage>(); break;
+                case "alerts": NavigationService.NavigateTo<RateAlertsPage>(); break;
+            }
         }
     }
 }

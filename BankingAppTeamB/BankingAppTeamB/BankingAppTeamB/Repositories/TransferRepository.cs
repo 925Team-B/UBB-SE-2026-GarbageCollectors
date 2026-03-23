@@ -28,18 +28,22 @@ namespace BankingAppTeamB.Repositories
                 {
                     command.Parameters.Add(new SqlParameter("@UserId", t.UserId));
                     command.Parameters.Add(new SqlParameter("@SourceAccountId", t.SourceAccountId));
-                    command.Parameters.Add(new SqlParameter("@TransactionId", (object?)t.TransactionId ?? DBNull.Value));
+                    command.Parameters.Add(new SqlParameter("@TransactionId",
+                        (object?)t.TransactionId ?? DBNull.Value));
                     command.Parameters.Add(new SqlParameter("@RecipientName", t.RecipientName));
                     command.Parameters.Add(new SqlParameter("@RecipientIBAN", t.RecipientIBAN));
-                    command.Parameters.Add(new SqlParameter("@RecipientBankName", (object?)t.RecipientBankName ?? DBNull.Value));
+                    command.Parameters.Add(new SqlParameter("@RecipientBankName",
+                        (object?)t.RecipientBankName ?? DBNull.Value));
                     command.Parameters.Add(new SqlParameter("@Amount", t.Amount));
                     command.Parameters.Add(new SqlParameter("@Currency", t.Currency));
-                    command.Parameters.Add(new SqlParameter("@ConvertedAmount", (object?)t.ConvertedAmount ?? DBNull.Value));
+                    command.Parameters.Add(new SqlParameter("@ConvertedAmount",
+                        (object?)t.ConvertedAmount ?? DBNull.Value));
                     command.Parameters.Add(new SqlParameter("@ExchangeRate", (object?)t.ExchangeRate ?? DBNull.Value));
                     command.Parameters.Add(new SqlParameter("@Fee", t.Fee));
                     command.Parameters.Add(new SqlParameter("@Reference", (object?)t.Reference ?? DBNull.Value));
                     command.Parameters.Add(new SqlParameter("@Status", t.Status));
-                    command.Parameters.Add(new SqlParameter("@EstimatedArrival", (object?)t.EstimatedArrival ?? DBNull.Value));
+                    command.Parameters.Add(new SqlParameter("@EstimatedArrival",
+                        (object?)t.EstimatedArrival ?? DBNull.Value));
                     command.Parameters.Add(new SqlParameter("@CreatedAt", t.CreatedAt));
 
                     t.Id = (int)command.ExecuteScalar();
@@ -65,6 +69,7 @@ namespace BankingAppTeamB.Repositories
                     }
                 }
             }
+
             return null;
         }
 
@@ -87,6 +92,7 @@ namespace BankingAppTeamB.Repositories
                     }
                 }
             }
+
             return results;
         }
 
@@ -110,22 +116,32 @@ namespace BankingAppTeamB.Repositories
         {
             return new Transfer
             {
-                Id                  = (int)reader["Id"],
-                UserId              = (int)reader["UserId"],
-                SourceAccountId     = (int)reader["SourceAccountId"],
-                TransactionId       = reader["TransactionId"] == DBNull.Value ? null : (int?)reader["TransactionId"],
-                RecipientName       = (string)reader["RecipientName"],
-                RecipientIBAN       = (string)reader["RecipientIBAN"],
-                RecipientBankName   = reader["RecipientBankName"] == DBNull.Value ? null : (string)reader["RecipientBankName"],
-                Amount              = (decimal)reader["Amount"],
-                Currency            = (string)reader["Currency"],
-                ConvertedAmount     = reader["ConvertedAmount"] == DBNull.Value ? null : (decimal?)reader["ConvertedAmount"],
-                ExchangeRate        = reader["ExchangeRate"] == DBNull.Value ? null : (decimal?)reader["ExchangeRate"],
-                Fee                 = (decimal)reader["Fee"],
-                Reference           = reader["Reference"] == DBNull.Value ? null : (string)reader["Reference"],
-                Status              = (string)reader["Status"],
-                EstimatedArrival    = reader["EstimatedArrival"] == DBNull.Value ? null : (DateTime?)reader["EstimatedArrival"],
-                CreatedAt           = (DateTime)reader["CreatedAt"]
+                Id = (int)reader["Id"],
+                UserId = (int)reader["UserId"],
+                SourceAccountId = (int)reader["SourceAccountId"],
+                TransactionId = reader["TransactionId"] == DBNull.Value ? null : (int?)reader["TransactionId"],
+                RecipientName = (string)reader["RecipientName"],
+                RecipientIBAN = (string)reader["RecipientIBAN"],
+                RecipientBankName = reader["RecipientBankName"] == DBNull.Value
+                    ? null
+                    : (string)reader["RecipientBankName"],
+                Amount = (decimal)reader["Amount"],
+                Currency = (string)reader["Currency"],
+                ConvertedAmount =
+                    reader["ConvertedAmount"] == DBNull.Value ? null : (decimal?)reader["ConvertedAmount"],
+                ExchangeRate = reader["ExchangeRate"] == DBNull.Value ? null : (decimal?)reader["ExchangeRate"],
+                Fee = (decimal)reader["Fee"],
+                Reference = reader["Reference"] == DBNull.Value ? null : (string)reader["Reference"],
+                Status = Enum.TryParse<TransferStatus>(
+                    reader["Status"].ToString(),
+                    out var status
+                )
+                    ? status
+                    : throw new Exception("Invalid TransferStatus value"),
+                EstimatedArrival = reader["EstimatedArrival"] == DBNull.Value
+                    ? null
+                    : (DateTime?)reader["EstimatedArrival"],
+                CreatedAt = (DateTime)reader["CreatedAt"]
             };
         }
     }

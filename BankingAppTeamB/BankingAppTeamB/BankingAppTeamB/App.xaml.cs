@@ -15,8 +15,10 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using BankingAppTeamB.Configuration;
 using Microsoft.Data.SqlClient;
 using BankingAppTeamB.Data;
+using BankingAppTeamB.Services;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -29,6 +31,7 @@ namespace BankingAppTeamB
     public partial class App : Application
     {
         private Window? _window;
+        public static RecurringScheduler? Scheduler { get; private set; }
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -46,8 +49,16 @@ namespace BankingAppTeamB
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             DatabaseInitializer.Initialize();
+            ServiceLocator.Initialize();
+
             _window = new MainWindow();
+            _window.Closed += OnWindowClosed;
             _window.Activate();
+        }
+
+        private void OnWindowClosed(object sender, WindowEventArgs args)
+        {
+            ServiceLocator.RecurringScheduler?.Stop();
         }
     }
 }

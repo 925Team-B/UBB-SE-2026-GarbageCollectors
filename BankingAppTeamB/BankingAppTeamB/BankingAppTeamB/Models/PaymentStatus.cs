@@ -4,6 +4,9 @@ namespace BankingAppTeamB.Models
     {
         Pending,
         Completed,
-        Failed
+        Failed,
+        Active,
+        Paused,
+        Cancelled
     }
 }

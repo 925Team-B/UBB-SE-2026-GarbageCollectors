@@ -61,7 +61,7 @@ namespace BankingAppTeamB.Services
 
         public void CheckAndNotifyDuePayments(List<RecurringPayment> payments, TimeSpan warningWindow)
         {
-            var now = DateTime.UtcNow;
+            var now = DateTime.Now;
             foreach (var payment in payments)
             {
                 if (payment.NextExecutionDate <= now + warningWindow)

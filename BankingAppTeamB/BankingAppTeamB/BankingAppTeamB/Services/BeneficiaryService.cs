@@ -1,8 +1,10 @@
 ﻿using BankingAppTeamB.Models;
+using BankingAppTeamB.Models.DTOs;
 using BankingAppTeamB.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BankingAppTeamB.Models.DTOs;
 
 namespace BankingAppTeamB.Services
 {
@@ -64,6 +66,30 @@ namespace BankingAppTeamB.Services
                 RecipientName = beneficiary.Name,
                 RecipientIBAN = beneficiary.IBAN
             };
+        }
+
+        internal object Add(string name, string iban, string newBankName, int uid)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Name cannot be empty");
+            }
+            List<Beneficiary> existingBeneficiaries = repo.GetByUserId(uid);
+            if (existingBeneficiaries.Any(b => b.IBAN.Equals(iban, StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new ArgumentException("A beneficiary with this IBAN already exists for this user.");
+            }
+            Beneficiary beneficiary = new Beneficiary
+            {
+                UserId = uid,
+                Name = name,
+                IBAN = iban,
+                BankName = newBankName,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            repo.Add(beneficiary);
+            return beneficiary;
         }
     }
 }
