@@ -30,6 +30,7 @@ namespace BankingAppTeamB
     public partial class App : Application
     {
         private Window? _window;
+        public static RecurringScheduler? Scheduler { get; private set; }
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -48,8 +49,15 @@ namespace BankingAppTeamB
         {
             DatabaseInitializer.Initialize();
             ServiceLocator.Initialize();
+
             _window = new MainWindow();
+            _window.Closed += OnWindowClosed;
             _window.Activate();
+        }
+
+        private void OnWindowClosed(object sender, WindowEventArgs args)
+        {
+            ServiceLocator.RecurringScheduler?.Stop();
         }
     }
 }

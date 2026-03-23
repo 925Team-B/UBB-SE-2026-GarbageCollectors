@@ -37,6 +37,7 @@ public static class ServiceLocator
     public static ExchangeService ExchangeService => _exchangeService;
     public static BillPaymentService BillPaymentService => _billPaymentService;
     public static RecurringPaymentService RecurringPaymentService => _recurringPaymentService;
+    public static RecurringScheduler RecurringScheduler => _recurringScheduler;
 
     public static void Initialize()
     {
