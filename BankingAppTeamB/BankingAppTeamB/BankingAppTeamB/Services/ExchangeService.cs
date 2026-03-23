@@ -163,6 +163,11 @@ namespace BankingAppTeamB.Services
 
 
         }
+        
+        public void ClearLocks(int userId)
+        {
+            _lockedRates.Remove(userId);
+        }
 
 
         public List<RateAlert> GetUserAlerts(int userId)

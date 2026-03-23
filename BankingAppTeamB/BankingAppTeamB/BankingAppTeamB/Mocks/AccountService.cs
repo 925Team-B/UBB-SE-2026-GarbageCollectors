@@ -17,7 +17,7 @@ namespace BankingAppTeamB.Mocks
 
         public decimal GetBalance(int id)
         {
-            return 0;
+            return 50;
         }
     }
 }

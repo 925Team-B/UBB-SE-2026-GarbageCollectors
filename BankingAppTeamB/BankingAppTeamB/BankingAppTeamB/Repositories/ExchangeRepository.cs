@@ -13,17 +13,20 @@ public class ExchangeRepository  : IExchangeRepository
         using var conn = new SqlConnection(ConnectionConfigHelper.GetConnectionString());
         conn.Open();
         
-        var query = @" INSERT INTO ExchangeTransaction
-        (UserId, SourceCurrency, TargetCurrency, SourceAmount, TargetAmount,
-         ExchangeRate, Commission, Status, CreatedAt)
-        OUTPUT INSERTED.Id
-        VALUES
-        (@UserId, @SourceCurrency, @TargetCurrency, @SourceAmount, @TargetAmount,
-         @Rate, @Commission, @Status, @CreatedAt)";
+        var query = @"
+                INSERT INTO ExchangeTransaction
+                (UserId, SourceAccountId, TargetAccountId, SourceCurrency, TargetCurrency,
+                 SourceAmount, TargetAmount, ExchangeRate, Commission, Status, CreatedAt)
+                OUTPUT INSERTED.Id
+                VALUES
+                (@UserId, @SourceAccountId, @TargetAccountId, @SourceCurrency, @TargetCurrency,
+                 @SourceAmount, @TargetAmount, @Rate, @Commission, @Status, @CreatedAt)";
         
         using var cmd = new SqlCommand(query, conn);
         
         cmd.Parameters.AddWithValue("@UserId", t.UserId);
+        cmd.Parameters.AddWithValue("@SourceAccountId", t.SourceAccountId);
+        cmd.Parameters.AddWithValue("@TargetAccountId", t.TargetAccountId);
         cmd.Parameters.AddWithValue("@SourceCurrency", t.SourceCurrency);
         cmd.Parameters.AddWithValue("@TargetCurrency", t.TargetCurrency);
         cmd.Parameters.AddWithValue("@SourceAmount", t.SourceAmount);
