@@ -13,11 +13,9 @@ public class FXViewModel : ViewModelBase
 {
     private readonly ExchangeService _exchangeService;
 
-    // =======================
-    // PROPERTIES
-    // =======================
 
     private int _currentStep;
+
     public int CurrentStep
     {
         get => _currentStep;
@@ -27,6 +25,7 @@ public class FXViewModel : ViewModelBase
     public ObservableCollection<Account> Accounts { get; } = new();
 
     private Account? _sourceAccount;
+
     public Account? SourceAccount
     {
         get => _sourceAccount;
@@ -40,6 +39,7 @@ public class FXViewModel : ViewModelBase
     }
 
     private Account? _targetAccount;
+
     public Account? TargetAccount
     {
         get => _targetAccount;
@@ -53,6 +53,7 @@ public class FXViewModel : ViewModelBase
     }
 
     private string _sourceCurrency = "";
+
     public string SourceCurrency
     {
         get => _sourceCurrency;
@@ -64,6 +65,7 @@ public class FXViewModel : ViewModelBase
     }
 
     private string _targetCurrency = "";
+
     public string TargetCurrency
     {
         get => _targetCurrency;
@@ -75,6 +77,7 @@ public class FXViewModel : ViewModelBase
     }
 
     private decimal _amount;
+
     public decimal Amount
     {
         get => _amount;
@@ -86,6 +89,7 @@ public class FXViewModel : ViewModelBase
     }
 
     private decimal _liveRate;
+
     public decimal LiveRate
     {
         get => _liveRate;
@@ -93,6 +97,7 @@ public class FXViewModel : ViewModelBase
     }
 
     private decimal _commission;
+
     public decimal Commission
     {
         get => _commission;
@@ -100,6 +105,7 @@ public class FXViewModel : ViewModelBase
     }
 
     private decimal _targetAmount;
+
     public decimal TargetAmount
     {
         get => _targetAmount;
@@ -107,6 +113,7 @@ public class FXViewModel : ViewModelBase
     }
 
     private int _secondsRemaining;
+
     public int SecondsRemaining
     {
         get => _secondsRemaining;
@@ -114,6 +121,7 @@ public class FXViewModel : ViewModelBase
     }
 
     private bool _isRateExpired;
+
     public bool IsRateExpired
     {
         get => _isRateExpired;
@@ -121,6 +129,7 @@ public class FXViewModel : ViewModelBase
     }
 
     private string _transactionRef = "";
+
     public string TransactionRef
     {
         get => _transactionRef;
@@ -128,29 +137,21 @@ public class FXViewModel : ViewModelBase
     }
 
     private string _errorMessage = "";
+
     public string ErrorMessage
     {
         get => _errorMessage;
         set => SetProperty(ref _errorMessage, value);
     }
 
-    // =======================
-    // COMMANDS
-    // =======================
 
     public AsyncRelayCommand LoadRatesCommand { get; }
     public RelayCommand LockRateCommand { get; }
 
-    // =======================
-    // PRIVATE FIELDS
-    // =======================
 
     private DispatcherTimer? _timer;
     private LockedRate? _lockedRate;
 
-    // =======================
-    // CONSTRUCTOR
-    // =======================
 
     public FXViewModel(ExchangeService exchangeService)
     {
@@ -163,10 +164,6 @@ public class FXViewModel : ViewModelBase
         _ = LoadAccountsAsync();
     }
 
-    // =======================
-    // LOAD ACCOUNTS
-    // =======================
-
     public Task LoadAccountsAsync()
     {
         Accounts.Clear();
@@ -177,9 +174,6 @@ public class FXViewModel : ViewModelBase
         return Task.CompletedTask;
     }
 
-    // =======================
-    // LOAD LIVE RATES
-    // =======================
 
     private Task LoadRatesAsync(object? _)
     {
@@ -201,9 +195,6 @@ public class FXViewModel : ViewModelBase
         return Task.CompletedTask;
     }
 
-    // =======================
-    // RECALCULATE PREVIEW
-    // =======================
 
     private void Recalculate()
     {
@@ -235,9 +226,6 @@ public class FXViewModel : ViewModelBase
         }
     }
 
-    // =======================
-    // LOCK RATE
-    // =======================
 
     private void LockRate(object? _)
     {
@@ -256,9 +244,6 @@ public class FXViewModel : ViewModelBase
             ErrorMessage = ex.Message;
         }
     }
-    // =======================
-    // TIMER
-    // =======================
 
     private void StartCountdownTimer()
     {
