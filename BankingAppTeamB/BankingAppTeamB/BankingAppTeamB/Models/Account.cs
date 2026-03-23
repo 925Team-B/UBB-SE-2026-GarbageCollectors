@@ -14,5 +14,6 @@ namespace BankingAppTeamB.Models
         public decimal Balance { get; set; }
         public string AccountName { get; set; } = "";
         public string Status { get; set; } = "";
+        
     }
 }
