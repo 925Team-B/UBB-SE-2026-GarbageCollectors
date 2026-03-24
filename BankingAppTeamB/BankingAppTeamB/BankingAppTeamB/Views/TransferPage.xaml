@@ -44,7 +44,7 @@
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <TextBlock Text="{Binding Name}"/>
+                                <TextBlock Text="{Binding AccountName}"/>
                                 <TextBlock
                                     Text="{Binding Currency}"
                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -126,11 +126,8 @@
                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                 <TextBlock Text="Amount" FontSize="13"/>
-                <NumberBox
-                    Value="{x:Bind ViewModel.Amount, Mode=TwoWay}"
-                    Minimum="0"
-                    SpinButtonPlacementMode="Compact"
-                    HorizontalAlignment="Stretch"
+                <TextBox
+                    Text="{x:Bind ViewModel.AmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     PlaceholderText="e.g. 100"/>
 
                 <TextBlock Text="Currency" FontSize="13"/>
@@ -171,7 +168,7 @@
                 <StackPanel Spacing="8">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock Text="From:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13"/>
-                        <TextBlock Text="{x:Bind ViewModel.SelectedAccount.Name, Mode=OneWay}" FontSize="13"/>
+                        <TextBlock Text="{x:Bind ViewModel.SelectedAccount.AccountName, Mode=OneWay}" FontSize="13"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock Text="To:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13"/>
@@ -187,7 +184,7 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <TextBlock Text="Amount:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="13"/>
-                        <TextBlock Text="{x:Bind ViewModel.Amount, Mode=OneWay}" FontSize="13"/>
+                        <TextBlock Text="{x:Bind ViewModel.AmountText, Mode=OneWay}" FontSize="13"/>
                         <TextBlock Text="{x:Bind ViewModel.Currency, Mode=OneWay}" FontSize="13"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Spacing="8">

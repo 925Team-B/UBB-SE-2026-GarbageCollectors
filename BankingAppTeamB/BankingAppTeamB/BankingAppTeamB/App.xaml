@@ -9,13 +9,14 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>
-            <!-- Other app resources here -->
+
+            <!-- Converters -->
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
             <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility" />
             <converters:StepToVisibilityConverter x:Key="StepToVisibility" />
             <converters:DecimalFormatConverter x:Key="DecimalFormat" />
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>
