@@ -4,6 +4,7 @@ using BankingAppTeamB.ViewModels;
 using BankingAppTeamB.Repositories;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Controls;
+using BankingAppTeamB.Configuration;
 
 namespace BankingAppTeamB.Views
 {
@@ -15,8 +16,7 @@ namespace BankingAppTeamB.Views
         {
             this.InitializeComponent();
 
-            // TODO: replace with ServiceLocator.GetService<TransferViewModel>() when delivered
-            ViewModel = ServiceLocator.GetTransferViewModel();
+            ViewModel = new TransferViewModel(ServiceLocator.TransferService);
             this.DataContext = ViewModel;
         }
 

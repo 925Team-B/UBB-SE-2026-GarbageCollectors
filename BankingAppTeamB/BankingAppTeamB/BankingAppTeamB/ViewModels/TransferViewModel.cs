@@ -123,6 +123,22 @@ namespace BankingAppTeamB.ViewModels
             set => SetProperty(ref errorMessage, value);
         }
 
+        private string amountText;
+        public string AmountText
+        {
+            get => amountText;
+            set
+            {
+                SetProperty(ref amountText, value);
+                if (decimal.TryParse(value, out decimal parsed))
+                {
+                    amount = parsed;
+                    UpdateFxPreview();
+                    UpdateRequires2FA();
+                }
+            }
+        }
+
         public RelayCommand NextStepCommand { get; }
         public AsyncRelayCommand TransferCommand { get; }
         public RelayCommand CancelCommand { get; }
@@ -134,17 +150,13 @@ namespace BankingAppTeamB.ViewModels
             Accounts = new ObservableCollection<Account>();
             CurrentStep = 1;
 
-            NextStepCommand  = new RelayCommand(_ => ExecuteNextStep());
-            TransferCommand  = new AsyncRelayCommand(_ => ExecuteTransferAsync());
-            CancelCommand    = new RelayCommand(_ => ExecuteCancel());
+            NextStepCommand = new RelayCommand(_ => ExecuteNextStep());
+            TransferCommand = new AsyncRelayCommand(_ => ExecuteTransferAsync());
+            CancelCommand = new RelayCommand(_ => ExecuteCancel());
             SendAgainCommand = new RelayCommand(_ => ExecuteSendAgain());
         }
 
         public void LoadAccounts()
-            NextStepCommand = new RelayCommand(_ => ExecuteNextStep());
-        }
-
-        public async Task LoadAccountsAsync()
         {
             var userAccounts = UserSession.GetAccounts();
             Accounts.Clear();
@@ -169,7 +181,7 @@ namespace BankingAppTeamB.ViewModels
                 case 2:
                     if (string.IsNullOrWhiteSpace(RecipientName))
                     {
-                        ErrorMessage = "Please introduce recipient name.";
+                        ErrorMessage = "Please enter the recipient name.";
                         return;
                     }
                     if (!IsIBANValid)
@@ -182,7 +194,7 @@ namespace BankingAppTeamB.ViewModels
                 case 3:
                     if (Amount <= 0)
                     {
-                        ErrorMessage = "The sum must be greater than zero.";
+                        ErrorMessage = "Amount must be greater than zero.";
                         return;
                     }
                     break;
@@ -197,13 +209,13 @@ namespace BankingAppTeamB.ViewModels
 
             var dto = new TransferDto
             {
-                UserId          = UserSession.CurrentUserId,
+                UserId = UserSession.CurrentUserId,
                 SourceAccountId = SelectedAccount.Id,
-                RecipientName   = RecipientName,
-                RecipientIBAN   = RecipientIBAN,
-                Amount          = Amount,
-                Currency        = Currency,
-                TwoFAToken      = TwoFAToken
+                RecipientName = RecipientName,
+                RecipientIBAN = RecipientIBAN,
+                Amount = Amount,
+                Currency = Currency,
+                TwoFAToken = TwoFAToken
             };
 
             try
@@ -218,7 +230,6 @@ namespace BankingAppTeamB.ViewModels
             catch (System.Exception ex)
             {
                 ErrorMessage = ex.Message;
-
                 CurrentStep = 4;
             }
         }
@@ -231,18 +242,19 @@ namespace BankingAppTeamB.ViewModels
 
         private void ExecuteSendAgain()
         {
-            SelectedAccount  = null;
-            RecipientName    = string.Empty;
-            RecipientIBAN    = string.Empty;
-            IsIBANValid      = false;
-            BankName         = string.Empty;
-            Amount           = 0;
-            Currency         = string.Empty;
-            FxPreviewText    = string.Empty;
-            TwoFAToken       = string.Empty;
-            Requires2FA      = false;
-            TransactionRef   = string.Empty;
-            ErrorMessage     = string.Empty;
+            SelectedAccount = null;
+            RecipientName = string.Empty;
+            RecipientIBAN = string.Empty;
+            IsIBANValid = false;
+            BankName = string.Empty;
+            Amount = 0;
+            Currency = string.Empty;
+            FxPreviewText = string.Empty;
+            TwoFAToken = string.Empty;
+            Requires2FA = false;
+            TransactionRef = string.Empty;
+            ErrorMessage = string.Empty;
+            AmountText = string.Empty;
 
             CurrentStep = 1;
         }

@@ -8,6 +8,7 @@ namespace BankingAppTeamB.Configuration;
 
 public static class ServiceLocator
 {
+
     private static ITransactionRepository _transactionRepository = new TransactionRepository();
     private static ITransferRepository _transferRepository = new TransferRepository();
     private static IBeneficiaryRepository _beneficiaryRepository = new BeneficiaryRepository();
@@ -20,7 +21,7 @@ public static class ServiceLocator
 
     private static TransactionPipelineService _pipelineService = new TransactionPipelineService(_transactionRepository, _accountService);
 
-    private static ExchangeService _exchangeService = new ExchangeService(_exchangeRepository, _pipelineService);
+    private static ExchangeService _exchangeService = new ExchangeService(_exchangeRepository, _pipelineService, _accountService);
     private static TransferService _transferService = new TransferService(_transferRepository, _beneficiaryRepository, _pipelineService, _exchangeService);
     private static BillPaymentService _billPaymentService = new BillPaymentService(_billPaymentRepository, _pipelineService);
     private static RecurringPaymentService _recurringPaymentService = new RecurringPaymentService(_recurringPaymentRepository, _billPaymentService);
