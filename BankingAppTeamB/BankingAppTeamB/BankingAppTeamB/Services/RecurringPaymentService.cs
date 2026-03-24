@@ -22,9 +22,12 @@ namespace BankingAppTeamB.Services
         {
             return frequency switch
             {
+                RecurringFrequency.Daily => from.AddDays(1),
                 RecurringFrequency.Weekly => from.AddDays(7),
+                RecurringFrequency.BiWeekly => from.AddDays(14),
                 RecurringFrequency.Monthly => from.AddMonths(1),
-                RecurringFrequency.BiWeekly => from.AddMonths(3),
+                RecurringFrequency.Quarterly => from.AddMonths(3),
+                RecurringFrequency.Yearly => from.AddYears(1),
                 _ => throw new ArgumentOutOfRangeException(nameof(frequency), $"Unknown frequency: {frequency}")
             };
         }
@@ -41,7 +44,7 @@ namespace BankingAppTeamB.Services
                 Frequency = dto.Frequency,
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
-                NextExecutionDate = dto.StartDate,
+                NextExecutionDate = ComputeNextRunDate(dto.Frequency, dto.StartDate),
                 Status = PaymentStatus.Active,
                 CreatedAt = DateTime.UtcNow
             };
@@ -122,7 +125,7 @@ namespace BankingAppTeamB.Services
 
             foreach (var payment in dueSoon)
             {
-                Debug.WriteLine($"[RecurringPaymentService] NOTIFICATION STUB � Payment ID {payment.Id} for UserId {payment.UserId} is due on {payment.NextExecutionDate:yyyy-MM-dd HH:mm}");
+                Debug.WriteLine($"[RecurringPaymentService] NOTIFICATION STUB - Payment ID {payment.Id} for UserId {payment.UserId} is due on {payment.NextExecutionDate:yyyy-MM-dd HH:mm}");
             }
 
             return dueSoon;

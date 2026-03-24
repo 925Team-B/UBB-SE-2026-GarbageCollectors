@@ -15,55 +15,6 @@
                        FontSize="24"
                        FontWeight="SemiBold"/>
 
-            <TextBlock Text="{Binding ErrorMessage}"
-                       Foreground="Red"
-                       TextWrapping="Wrap"/>
-
-            <ComboBox Header="Source Account"
-                      ItemsSource="{Binding Accounts}"
-                      SelectedItem="{Binding SelectedAccount, Mode=TwoWay}">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate x:DataType="models:Account">
-                        <StackPanel>
-                            <TextBlock Text="{x:Bind IBAN}"/>
-                            <TextBlock Text="{x:Bind AccountName}" FontSize="12" Opacity="0.7"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
-
-            <ComboBox Header="Select Biller"
-                      ItemsSource="{Binding Billers}"
-                      SelectedItem="{Binding SelectedBiller, Mode=TwoWay}">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate x:DataType="models:Biller">
-                        <StackPanel>
-                            <TextBlock Text="{x:Bind Name}"/>
-                            <TextBlock Text="{x:Bind Category}" FontSize="12" Opacity="0.7"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
-
-            <TextBox x:Name="AmountTextBox"
-                     Header="Amount"
-                     TextChanged="AmountTextBox_TextChanged"/>
-
-            <ComboBox Header="Frequency"
-                      ItemsSource="{Binding Frequencies}"
-                      SelectedItem="{Binding Frequency, Mode=TwoWay}"/>
-
-            <DatePicker x:Name="StartDatePicker"
-                        Header="Start Date"
-                        DateChanged="StartDatePicker_DateChanged"/>
-
-            <DatePicker x:Name="EndDatePicker"
-                        Header="End Date"
-                        DateChanged="EndDatePicker_DateChanged"/>
-
-            <Button Content="Create Recurring Payment"
-                    Command="{Binding CreateCommand}"/>
-
             <TextBlock Text="Existing Payments"
                        FontSize="20"
                        FontWeight="SemiBold"
@@ -81,7 +32,7 @@
                                 Padding="12"
                                 Margin="0,0,0,10">
                             <StackPanel Spacing="6">
-                                <TextBlock Text="{x:Bind Id, Mode=OneWay}" FontWeight="Bold"/>
+                                <TextBlock Text="{x:Bind BillerId, Mode=OneWay}" FontWeight="Bold"/>
                                 <TextBlock Text="{x:Bind Amount, Mode=OneWay}"/>
                                 <TextBlock Text="{x:Bind Frequency, Mode=OneWay}"/>
                                 <TextBlock Text="{x:Bind Status, Mode=OneWay}"/>
@@ -95,50 +46,30 @@
                                     <Run Text="End Date: "/>
                                     <Run Text="{x:Bind EndDate, Mode=OneWay, TargetNullValue=No end date}"/>
                                 </TextBlock>
+
+                                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                                    <Button Content="Pause"
+                                            Click="PauseButton_Click"
+                                            Tag="{Binding}"/>
+
+                                    <Button Content="Resume"
+                                            Click="ResumeButton_Click"
+                                            Tag="{Binding}"/>
+
+                                    <Button Content="Cancel"
+                                            Click="CancelButton_Click"
+                                            Tag="{Binding}"/>
+                                </StackPanel>
                             </StackPanel>
                         </Border>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
 
-            <StackPanel Orientation="Horizontal" Spacing="10">
-                <Button Content="Pause"
-                        Command="{Binding PauseCommand}"
-                        CommandParameter="{Binding SelectedItem, ElementName=PaymentsList}"/>
-
-                <Button Content="Resume"
-                        Command="{Binding ResumeCommand}"
-                        CommandParameter="{Binding SelectedItem, ElementName=PaymentsList}"/>
-
-                <Button Content="Cancel"
-                        Command="{Binding CancelCommand}"
-                        CommandParameter="{Binding SelectedItem, ElementName=PaymentsList}"/>
-            </StackPanel>
-
-        </StackPanel>
-    </ScrollViewer>
-</Page>
-    
-    <!--<?xml version="1.0" encoding="utf-8"?>
-<Page
-    x:Class="BankingAppTeamB.Views.RecurringPaymentsPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:models="using:BankingAppTeamB.Models"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
-
-    <ScrollViewer>
-        <StackPanel Padding="24" Spacing="14">
-
-            <TextBlock Text="Recurring Payments"
-                       FontSize="24"
-                       FontWeight="SemiBold"/>
-
-            <TextBlock Text="{Binding ErrorMessage}"
-                       Foreground="Red"
-                       TextWrapping="Wrap"/>
+            <TextBlock Text="Create Recurring Payment"
+                       FontSize="20"
+                       FontWeight="SemiBold"
+                       Margin="0,12,0,0"/>
 
             <ComboBox Header="Source Account"
                       ItemsSource="{Binding Accounts}"
@@ -166,9 +97,9 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
 
-            <TextBox x:Name="AmountTextBox"
-                     Header="Amount"
-                     TextChanged="AmountTextBox_TextChanged"/>
+            <NumberBox x:Name="AmountNumberBox"
+                       Header="Amount"
+                       ValueChanged="AmountNumberBox_ValueChanged"/>
 
             <ComboBox Header="Frequency"
                       ItemsSource="{Binding Frequencies}"
@@ -182,66 +113,14 @@
                         Header="End Date"
                         DateChanged="EndDatePicker_DateChanged"/>
 
-            <Button Content="Create Recurring Payment"
-                    Command="{Binding CreateCommand}"/>
+            <TextBlock x:Name="ErrorMessageTextBlock"
+                       Foreground="Red"
+                       TextWrapping="Wrap"
+                       Visibility="Collapsed"/>
 
-            <TextBlock Text="Existing Payments"
-                       FontSize="20"
-                       FontWeight="SemiBold"
-                       Margin="0,12,0,0"/>
-
-            <ListView x:Name="PaymentsList"
-                      ItemsSource="{Binding Payments}"
-                      SelectedItem="{Binding SelectedPayment, Mode=TwoWay}"
-                      MaxHeight="320">
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="models:RecurringPayment">
-                        <Border BorderBrush="LightGray"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                Padding="12"
-                                Margin="0,0,0,10">
-                            <StackPanel Spacing="6">
-                                <TextBlock Text="{x:Bind Id, Mode=OneWay}" FontWeight="Bold"/>
-                                <TextBlock Text="{x:Bind Amount, Mode=OneWay}"/>
-                                <TextBlock Text="{x:Bind Frequency, Mode=OneWay}"/>
-                                <TextBlock Text="{x:Bind Status, Mode=OneWay}"/>
-
-                                <TextBlock>
-                                    <Run Text="Start Date: "/>
-                                    <Run Text="{x:Bind StartDate, Mode=OneWay}"/>
-                                </TextBlock>
-
-                                <TextBlock>
-                                    <Run Text="End Date: "/>
-                                    <Run Text="{x:Bind EndDate, Mode=OneWay, FallbackValue=No end date, TargetNullValue=No end date}"/>
-                                </TextBlock>
-
-                                <TextBlock>
-                                    <Run Text="Next Execution: "/>
-                                    <Run Text="{x:Bind NextExecutionDate, Mode=OneWay}"/>
-                                </TextBlock>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-
-            <StackPanel Orientation="Horizontal" Spacing="10">
-                <Button Content="Pause"
-                        Command="{Binding PauseCommand}"
-                        CommandParameter="{Binding SelectedItem, ElementName=PaymentsList}"/>
-
-                <Button Content="Resume"
-                        Command="{Binding ResumeCommand}"
-                        CommandParameter="{Binding SelectedItem, ElementName=PaymentsList}"/>
-
-                <Button Content="Cancel"
-                        Command="{Binding CancelCommand}"
-                        CommandParameter="{Binding SelectedItem, ElementName=PaymentsList}"/>
-            </StackPanel>
+            <Button Content="Create"
+                    Click="CreateButton_Click"/>
 
         </StackPanel>
     </ScrollViewer>
-</Page>-->
- 
+</Page>

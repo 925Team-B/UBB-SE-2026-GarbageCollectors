@@ -6,6 +6,7 @@ namespace BankingAppTeamB.Models
         Weekly,
         BiWeekly,
         Monthly,
+        Quarterly,
         Yearly
     }
 }
