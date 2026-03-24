@@ -73,10 +73,10 @@ namespace BankingAppTeamB.ViewModels
         }
 
         //Commands
-        public IAsyncRelayCommand AddCommand { get; }
-        public IRelayCommand<Beneficiary> DeleteCommand { get; }
-        public IRelayCommand ShowAddFormCommand { get; }
-        public IRelayCommand<Beneficiary> UseForTransferCommand { get; }
+        public AsyncRelayCommand AddCommand { get; }
+        public RelayCommand DeleteCommand { get; }
+        public RelayCommand ShowAddFormCommand { get; }
+        public RelayCommand UseForTransferCommand { get; }
 
         //Constructor
         public BeneficiariesViewModel(BeneficiaryService beneficiaryService)
@@ -84,10 +84,10 @@ namespace BankingAppTeamB.ViewModels
             this.beneficiaryService = beneficiaryService;
 
             //Initialize Commands
-            AddCommand = new AsyncRelayCommand(AddBeneficiaryAsync);
-            DeleteCommand = new RelayCommand<Beneficiary>(DeleteBeneficiary!);
-            ShowAddFormCommand = new RelayCommand(ShowAddForm);
-            UseForTransferCommand = new RelayCommand<Beneficiary>(UseForTransfer!);
+            AddCommand = new AsyncRelayCommand(_ => AddBeneficiaryAsync());
+            DeleteCommand = new RelayCommand(p => DeleteBeneficiary(p as Beneficiary));
+            ShowAddFormCommand = new RelayCommand(_ => ShowAddForm());
+            UseForTransferCommand = new RelayCommand(p => UseForTransfer(p as Beneficiary));
         }
         //Methods
         public async Task LoadAsync()
