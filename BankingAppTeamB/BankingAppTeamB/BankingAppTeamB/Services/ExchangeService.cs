@@ -48,7 +48,7 @@ namespace BankingAppTeamB.Services
             {
                 string[] parts = pair.Split('/');
                 string inverseKey = $"{parts[1]}/{parts[0]}";
-                rates[inverseKey] = 1 / rates[pair];
+                rates[inverseKey] = Math.Round(1 / rates[pair], 2);
             }
 
             _cachedRates = rates;
@@ -66,7 +66,7 @@ namespace BankingAppTeamB.Services
 
             string inverseKey = $"{to}/{from}";
             if (rates.ContainsKey(inverseKey))
-                return 1 / rates[inverseKey];
+                return Math.Round(1 / rates[inverseKey], 2);
 
             throw new Exception($"Rate not found for pair {from}/{to}");
         }
@@ -191,22 +191,17 @@ namespace BankingAppTeamB.Services
         {
             List<RateAlert> activeAlerts = _exchangeRepository.GetAllActiveAlerts();
 
-            foreach (RateAlert alert in activeAlerts)
+            foreach (var alert in activeAlerts)
             {
-                var targetRate = alert.getTargetRate();
-                var currentRate = GetRate(alert.getBaseCurrency(), alert.getTargetCurrency());
+                var currentRate = Math.Round(GetRate(alert.BaseCurrency, alert.TargetCurrency), 2);
+                var targetRate = Math.Round(alert.TargetRate, 2);
 
-                if (alert.isBuyAlert())
-                {
-                    if (currentRate <= targetRate)
-                        Console.WriteLine("The current rate is below the target rate for alert with id " + alert.Id);
-                }
+                if (alert.IsBuyAlert)
+                    alert.IsTriggered = currentRate <= targetRate;
                 else
-                {
-                    if (currentRate > targetRate)
-                        Console.WriteLine("The current rate is above the target rate for alert with id: " + alert.Id);
-                }
+                    alert.IsTriggered = currentRate >= targetRate;
             }
+            
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿IF NOT EXISTS (
+﻿
+IF NOT EXISTS (
    SELECT * FROM sys.tables
         WHERE name = 'RateAlert'
 )
@@ -14,6 +15,8 @@ BEGIN
         TargetRate DECIMAL(18,6) NOT NULL,
         
         isTriggered BIT NOT NULL DEFAULT 0,
+        
+        isBuyAlert BIT NOT NULL,
     
         CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE()
     );

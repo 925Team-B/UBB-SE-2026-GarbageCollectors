@@ -13,6 +13,7 @@
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVis" />
+        <converters:BoolToBuySellConverter x:Key="BuySellConverter" />
     </Page.Resources>
 
     <Grid Padding="24">
@@ -62,6 +63,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="60"/>
                                     <ColumnDefinition Width="100"/>
+                                    <ColumnDefinition Width="100"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
@@ -70,14 +72,18 @@
                                 <TextBlock Grid.Column="1" Text="➔" VerticalAlignment="Center" Foreground="Gray"/>
                                 <TextBlock Grid.Column="2" Text="{Binding TargetCurrency}" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="3" Text="{Binding TargetRate}" FontWeight="Bold" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="4"
+           Text="{Binding IsBuyAlert, Converter={StaticResource BuySellConverter}}"
+           FontWeight="Bold"
+           VerticalAlignment="Center"/>
 
-                                <Border Grid.Column="4" Background="#44FF0000" CornerRadius="4" Padding="8,4" 
+                                <Border Grid.Column="5" Background="#44FF0000" CornerRadius="4" Padding="8,4" 
                                         HorizontalAlignment="Left" VerticalAlignment="Center"
                                         Visibility="{Binding IsTriggered, Converter={StaticResource BoolToVis}}">
                                     <TextBlock Text="TRIGGERED" Foreground="Red" FontWeight="Bold" FontSize="12"/>
                                 </Border>
 
-                                <Button Grid.Column="5" Content="Delete" 
+                                <Button Grid.Column="6" Content="Delete" 
                                         Command="{Binding DataContext.DeleteAlertCommand, ElementName=RootPage}" 
                                         CommandParameter="{Binding}" />
                             </Grid>
@@ -99,6 +105,25 @@
             <TextBox Header="Target Rate" 
                      Text="{Binding TargetRateText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                      PlaceholderText="e.g. 1.05" Width="150" />
+
+            <ComboBox Header="Alert Type"
+                      SelectedValue="{Binding IsBuyAlert, Mode=TwoWay}"
+                      SelectedValuePath="Tag"
+                      Width="150">
+
+                <ComboBoxItem Content="Sell">
+                    <ComboBoxItem.Tag>
+                        <x:Boolean>false</x:Boolean>
+                    </ComboBoxItem.Tag>
+                </ComboBoxItem>
+
+                <ComboBoxItem Content="Buy">
+                    <ComboBoxItem.Tag>
+                        <x:Boolean>true</x:Boolean>
+                    </ComboBoxItem.Tag>
+                </ComboBoxItem>
+
+            </ComboBox>
 
             <Button Content="Create Alert" Command="{Binding CreateAlertCommand}" VerticalAlignment="Bottom" />
         </StackPanel>

@@ -111,6 +111,7 @@ public class ExchangeRepository  : IExchangeRepository
             TargetCurrency = reader["TargetCurrency"].ToString(),
             TargetRate = (decimal)reader["TargetRate"],
             IsTriggered = (bool)reader["IsTriggered"],
+            IsBuyAlert = (bool)reader["IsBuyAlert"],
             CreatedAt = (DateTime)reader["CreatedAt"]
         };
     }
@@ -141,9 +142,9 @@ public class ExchangeRepository  : IExchangeRepository
         
         var query = @"
         INSERT INTO RateAlert
-        (UserId, BaseCurrency, TargetCurrency, TargetRate, IsTriggered, CreatedAt)
+        (UserId, BaseCurrency, TargetCurrency, TargetRate, isTriggered, isBuyAlert, CreatedAt)
         OUTPUT INSERTED.Id
-        VALUES (@UserId, @Base, @Target, @Rate, 0, @CreatedAt)";
+        VALUES (@UserId, @Base, @Target, @Rate, 0, @IsBuyAlert, @CreatedAt)";
         
         using var cmd = new SqlCommand(query, conn);
         
@@ -152,6 +153,7 @@ public class ExchangeRepository  : IExchangeRepository
         cmd.Parameters.AddWithValue("@Target", alert.TargetCurrency);
         cmd.Parameters.AddWithValue("@Rate", alert.TargetRate);
         cmd.Parameters.AddWithValue("@CreatedAt", alert.CreatedAt);
+        cmd.Parameters.AddWithValue("@IsBuyAlert", alert.IsBuyAlert);
         
         alert.Id = (int)cmd.ExecuteScalar();
 
