@@ -150,16 +150,24 @@
                         HorizontalAlignment="Center" Width="200"/>
             </StackPanel>
 
-            <!-- STEP 7: Invalid IBAN -->
+            <!-- STEP 7: Error -->
             <StackPanel Spacing="16"
-            Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay,
-                         Converter={StaticResource StepToVisibility}, ConverterParameter=7}">
-                <TextBlock Text="Invalid IBAN" FontSize="18" FontWeight="SemiBold" 
+             Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay,
+                 Converter={StaticResource StepToVisibility}, ConverterParameter=7}">
+
+                <TextBlock Text="Error"
+               FontSize="18"
+               FontWeight="SemiBold"
                HorizontalAlignment="Center"/>
-                <TextBlock Text="The IBAN you entered is invalid. Please check it and try again." 
-               TextAlignment="Center" TextWrapping="Wrap"/>
-                <Button Content="Start Again" Command="{x:Bind ViewModel.SendAgainCommand}" 
-            HorizontalAlignment="Center" Width="200"/>
+
+                <TextBlock Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+               TextAlignment="Center"
+               TextWrapping="Wrap"/>
+
+                <Button Content="Start Again"
+            Command="{x:Bind ViewModel.SendAgainCommand}"
+            HorizontalAlignment="Center"
+            Width="200"/>
             </StackPanel>
 
         </StackPanel>

@@ -167,6 +167,10 @@ public class TransferViewModel : ViewModelBase
             {
                 Amount = parsed;
             }
+            else
+            {
+                Amount = 0;
+            }
         }
     }
 
@@ -210,12 +214,20 @@ public class TransferViewModel : ViewModelBase
 
         if (CurrentStep == 2 && !IsIBANValid)
         {
-            ErrorMessage = "Cannot continue: IBAN is invalid. Please correct or start again.";
-            return; // stop advancing
+            ErrorMessage = "Invalid IBAN format.";
+            CurrentStep = 7;
+            return;
         }
 
         if (CurrentStep == 3)
         {
+            if (Amount <= 0)
+            {
+                ErrorMessage = "The amount must be greater than 0.";
+                CurrentStep = 7;
+                return;
+            }
+
             CurrentStep = Requires2FA ? 4 : 5;
             return;
         }
@@ -225,6 +237,7 @@ public class TransferViewModel : ViewModelBase
             if (!Is2FAConfirmed)
             {
                 ErrorMessage = "You must confirm the 2FA step.";
+                CurrentStep = 7;
                 return;
             }
 
@@ -249,7 +262,6 @@ public class TransferViewModel : ViewModelBase
             if (SelectedAccount == null)
                 throw new Exception("No account selected.");
 
-            // Send the generated token for 2FA transfers
             var dto = new TransferDto
             {
                 UserId = UserSession.CurrentUserId,
@@ -267,20 +279,17 @@ public class TransferViewModel : ViewModelBase
                 ? $"TXN-{result.CreatedAt:yyyyMMdd}-{result.TransactionId:D4}"
                 : result.Id.ToString();
 
-            CurrentStep = 6; // success screen
+            CurrentStep = 6;
         }
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
-
-            // stay on 2FA confirmation if required
-            CurrentStep = Requires2FA ? 4 : 5;
+            CurrentStep = 7;
         }
     }
 
     private void ExecuteCancel()
     {
-        // Optional: implement cancel logic
     }
 
     private void ExecuteSendAgain()
@@ -308,21 +317,20 @@ public class TransferViewModel : ViewModelBase
         try
         {
             IsIBANValid = transferService.ValidateIBAN(iban);
-            if (!IsIBANValid)
+
+            if (IsIBANValid)
             {
-                // Navigate to Invalid IBAN step
-                CurrentStep = 7;
+                BankName = transferService.GetBankNameFromIBAN(iban);
             }
             else
             {
-                BankName = transferService.GetBankNameFromIBAN(iban);
+                BankName = string.Empty;
             }
         }
         catch
         {
             IsIBANValid = false;
             BankName = string.Empty;
-            CurrentStep = 7; // go to Invalid IBAN step if exception
         }
     }
 
