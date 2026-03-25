@@ -1,22 +1,12 @@
-using System;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using BankingAppTeamB.Commands;
 using BankingAppTeamB.Mocks;
 using BankingAppTeamB.Models;
 using BankingAppTeamB.Models.DTOs;
 using BankingAppTeamB.Services;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BankingAppTeamB.Commands;
-using BankingAppTeamB.Models;
-using BankingAppTeamB.Services;
 using BankingAppTeamB.ViewModels;
-
+using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 public class TransferViewModel : ViewModelBase
 {
@@ -29,7 +19,6 @@ public class TransferViewModel : ViewModelBase
         Accounts = new ObservableCollection<Account>();
         CurrentStep = 1;
 
-        // ✅ default values (IMPORTANT)
         Currency = "EUR";
         AmountText = "";
 
@@ -64,10 +53,7 @@ public class TransferViewModel : ViewModelBase
         set
         {
             SetProperty(ref selectedAccount, value);
-
-            // 🔥 IMPORTANT: notify dependent property
             OnPropertyChanged(nameof(SelectedAccountName));
-
             UpdateFxPreview();
         }
     }
@@ -148,6 +134,13 @@ public class TransferViewModel : ViewModelBase
         set => SetProperty(ref requires2FA, value);
     }
 
+    private bool is2FAConfirmed;
+    public bool Is2FAConfirmed
+    {
+        get => is2FAConfirmed;
+        set => SetProperty(ref is2FAConfirmed, value);
+    }
+
     private string transactionRef;
     public string TransactionRef
     {
@@ -181,8 +174,6 @@ public class TransferViewModel : ViewModelBase
     public AsyncRelayCommand TransferCommand { get; }
     public RelayCommand CancelCommand { get; }
     public RelayCommand SendAgainCommand { get; }
-    
-    
 
     public void LoadAccounts()
     {
@@ -197,7 +188,6 @@ public class TransferViewModel : ViewModelBase
                 foreach (var account in userAccounts)
                     Accounts.Add(account);
 
-                // ✅ select first account automatically
                 if (Accounts.Count > 0)
                     SelectedAccount = Accounts[0];
             }
@@ -208,11 +198,38 @@ public class TransferViewModel : ViewModelBase
         }
     }
 
+    private string GenerateTwoFAToken()
+    {
+        var rnd = new Random();
+        return rnd.Next(100000, 999999).ToString();
+    }
+
     private void ExecuteNextStep()
     {
         ErrorMessage = string.Empty;
-        
-        
+
+        if (CurrentStep == 3)
+        {
+            CurrentStep = Requires2FA ? 4 : 5;
+            return;
+        }
+
+        if (CurrentStep == 4)
+        {
+            if (!Is2FAConfirmed)
+            {
+                ErrorMessage = "You must confirm the 2FA step.";
+                return;
+            }
+
+            if (Requires2FA && string.IsNullOrWhiteSpace(TwoFAToken))
+            {
+                TwoFAToken = GenerateTwoFAToken();
+            }
+
+            CurrentStep = 5; // move to Confirm Transfer
+            return;
+        }
 
         CurrentStep++;
     }
@@ -221,11 +238,12 @@ public class TransferViewModel : ViewModelBase
     {
         try
         {
-            CurrentStep = 5;
+            ErrorMessage = string.Empty;
 
             if (SelectedAccount == null)
                 throw new Exception("No account selected.");
 
+            // Send the generated token for 2FA transfers
             var dto = new TransferDto
             {
                 UserId = UserSession.CurrentUserId,
@@ -234,7 +252,7 @@ public class TransferViewModel : ViewModelBase
                 RecipientIBAN = RecipientIBAN,
                 Amount = Amount,
                 Currency = Currency,
-                TwoFAToken = TwoFAToken
+                TwoFAToken = Requires2FA ? TwoFAToken : null
             };
 
             var result = await Task.Run(() => transferService.ExecuteTransfer(dto));
@@ -243,17 +261,20 @@ public class TransferViewModel : ViewModelBase
                 ? $"TXN-{result.CreatedAt:yyyyMMdd}-{result.TransactionId:D4}"
                 : result.Id.ToString();
 
-            CurrentStep = 6;
+            CurrentStep = 6; // success screen
         }
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
-            CurrentStep = 4;
+
+            // stay on 2FA confirmation if required
+            CurrentStep = Requires2FA ? 4 : 5;
         }
     }
 
     private void ExecuteCancel()
     {
+        // Optional: implement cancel logic
     }
 
     private void ExecuteSendAgain()
@@ -268,6 +289,7 @@ public class TransferViewModel : ViewModelBase
         FxPreviewText = string.Empty;
         TwoFAToken = string.Empty;
         Requires2FA = false;
+        Is2FAConfirmed = false;
         TransactionRef = string.Empty;
         ErrorMessage = string.Empty;
         AmountText = string.Empty;

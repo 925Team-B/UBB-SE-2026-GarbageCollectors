@@ -16,24 +16,19 @@
 
             <TextBlock Text="Transfer" FontSize="28" FontWeight="SemiBold"/>
 
-            <!-- 🔥 FIXED -->
+            <!-- Error InfoBar -->
             <InfoBar
                 IsOpen="{Binding ErrorMessage, Converter={StaticResource BoolToVisibility}}"
                 Severity="Error"
                 Message="{Binding ErrorMessage}"/>
 
-            <!-- STEP 1 -->
-            <StackPanel
-                Spacing="16"
-                Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay,
-                 Converter={StaticResource StepToVisibility}, ConverterParameter=1}">
-
+            <!-- STEP 1: Select Account -->
+            <StackPanel Spacing="16"
+                        Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay,
+                                     Converter={StaticResource StepToVisibility}, ConverterParameter=1}">
                 <TextBlock Text="Step 1 of 4 — Select source account" FontSize="14"/>
-
-                <ComboBox
-                    ItemsSource="{x:Bind ViewModel.Accounts}"
-                    SelectedItem="{x:Bind ViewModel.SelectedAccount, Mode=TwoWay}">
-
+                <ComboBox ItemsSource="{x:Bind ViewModel.Accounts}"
+                          SelectedItem="{x:Bind ViewModel.SelectedAccount, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="models:Account">
                             <StackPanel Orientation="Horizontal" Spacing="8">
@@ -43,75 +38,93 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-
                 <Button Content="Next" Command="{x:Bind ViewModel.NextStepCommand}"/>
             </StackPanel>
 
-            <!-- STEP 2 -->
-            <StackPanel
-                Spacing="16"
-                Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay,
-                 Converter={StaticResource StepToVisibility}, ConverterParameter=2}">
-
-                <TextBox
-                    Header="Recipient Name"
-                    Text="{x:Bind ViewModel.RecipientName, Mode=TwoWay}"/>
-
-                <TextBox
-                    Header="Recipient IBAN"
-                    Text="{x:Bind ViewModel.RecipientIBAN, Mode=TwoWay}"/>
-
+            <!-- STEP 2: Recipient Info -->
+            <StackPanel Spacing="16"
+                        Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay,
+                                     Converter={StaticResource StepToVisibility}, ConverterParameter=2}">
+                <TextBox Header="Recipient Name" Text="{x:Bind ViewModel.RecipientName, Mode=TwoWay}"/>
+                <TextBox Header="Recipient IBAN" Text="{x:Bind ViewModel.RecipientIBAN, Mode=TwoWay}"/>
                 <TextBlock Text="{x:Bind ViewModel.BankName, Mode=OneWay}"/>
-
                 <Button Content="Next" Command="{x:Bind ViewModel.NextStepCommand}"/>
             </StackPanel>
 
-            <!-- STEP 3 -->
-            <StackPanel
-                Spacing="16"
-                Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay,
-                 Converter={StaticResource StepToVisibility}, ConverterParameter=3}">
-
-                <TextBox
-                    Header="Amount"
-                    Text="{x:Bind ViewModel.AmountText, Mode=TwoWay}"/>
-
-                <ComboBox
-                    SelectedValue="{x:Bind ViewModel.Currency, Mode=TwoWay}"
-                    SelectedValuePath="Content">
-
+            <!-- STEP 3: Amount -->
+            <StackPanel Spacing="16"
+                        Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay,
+                                     Converter={StaticResource StepToVisibility}, ConverterParameter=3}">
+                <TextBox Header="Amount" Text="{x:Bind ViewModel.AmountText, Mode=TwoWay}"/>
+                <ComboBox SelectedValue="{x:Bind ViewModel.Currency, Mode=TwoWay}"
+                          SelectedValuePath="Content">
                     <ComboBoxItem Content="EUR"/>
                     <ComboBoxItem Content="USD"/>
                     <ComboBoxItem Content="RON"/>
                 </ComboBox>
-
                 <TextBlock Text="{x:Bind ViewModel.FxPreviewText, Mode=OneWay}"/>
-
                 <Button Content="Next" Command="{x:Bind ViewModel.NextStepCommand}"/>
             </StackPanel>
-            <!-- STEP 4 (🔥 FIXED HERE) -->
-            <StackPanel
-                Spacing="16"
-                Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay,
-                 Converter={StaticResource StepToVisibility}, ConverterParameter=4}">
 
+            <!-- STEP 4: 2FA Confirmation -->
+            <StackPanel Spacing="16"
+                        Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay,
+                                     Converter={StaticResource StepToVisibility}, ConverterParameter=4}">
+                <TextBlock Text="2FA Confirmation" FontSize="18"/>
+                <CheckBox Content="I confirm this transaction"
+                          IsChecked="{x:Bind ViewModel.Is2FAConfirmed, Mode=TwoWay}"/>
+                <Button Content="Next"
+                        Command="{x:Bind ViewModel.NextStepCommand}"
+                        IsEnabled="{x:Bind ViewModel.Is2FAConfirmed, Mode=OneWay}"/>
+            </StackPanel>
+
+            <!-- STEP 5: Confirm Transfer -->
+            <StackPanel Spacing="16"
+                        Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay,
+                                     Converter={StaticResource StepToVisibility}, ConverterParameter=5}">
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <TextBlock Text="From:"/>
                     <TextBlock Text="{x:Bind ViewModel.SelectedAccount.AccountName, Mode=OneWay}"/>
                 </StackPanel>
-
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <TextBlock Text="To:"/>
                     <TextBlock Text="{x:Bind ViewModel.RecipientName, Mode=OneWay}"/>
                 </StackPanel>
-
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <TextBlock Text="Amount:"/>
                     <TextBlock Text="{x:Bind ViewModel.AmountText, Mode=OneWay}"/>
                     <TextBlock Text="{x:Bind ViewModel.Currency, Mode=OneWay}"/>
                 </StackPanel>
-
                 <Button Content="Confirm Transfer" Command="{x:Bind ViewModel.TransferCommand}"/>
+            </StackPanel>
+
+            <!-- STEP 6: Success / Receipt -->
+            <StackPanel Spacing="16"
+                        Visibility="{x:Bind ViewModel.CurrentStep, Mode=OneWay,
+                                     Converter={StaticResource StepToVisibility}, ConverterParameter=6}">
+                <TextBlock Text="Transfer Successful!" FontSize="20" FontWeight="SemiBold"/>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="To:"/>
+                    <TextBlock Text="{x:Bind ViewModel.RecipientName, Mode=OneWay}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="IBAN:"/>
+                    <TextBlock Text="{x:Bind ViewModel.RecipientIBAN, Mode=OneWay}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="Reference:"/>
+                    <TextBlock Text="{x:Bind ViewModel.TransactionRef, Mode=OneWay}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="Amount:"/>
+                    <TextBlock Text="{x:Bind ViewModel.AmountText, Mode=OneWay}"/>
+                    <TextBlock Text="{x:Bind ViewModel.Currency, Mode=OneWay}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="From:"/>
+                    <TextBlock Text="{x:Bind ViewModel.SelectedAccount.AccountName, Mode=OneWay}"/>
+                </StackPanel>
+                <Button Content="New Transfer" Command="{x:Bind ViewModel.SendAgainCommand}"/>
             </StackPanel>
 
         </StackPanel>
