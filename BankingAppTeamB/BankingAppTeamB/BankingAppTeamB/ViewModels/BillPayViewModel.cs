@@ -32,6 +32,33 @@ namespace BankingAppTeamB.ViewModels
         private string _receiptNumber = string.Empty;
         private string _errorMessage = string.Empty;
 
+        private bool _requires2FA;
+        public bool Requires2FA
+        {
+            get => _requires2FA;
+            set => SetProperty(ref _requires2FA, value);
+        }
+
+        private bool _is2FAConfirmed;
+        public bool Is2FAConfirmed
+        {
+            get => _is2FAConfirmed;
+            set => SetProperty(ref _is2FAConfirmed, value);
+        }
+
+        private string _twoFAToken = string.Empty;
+        public string TwoFAToken
+        {
+            get => _twoFAToken;
+            set => SetProperty(ref _twoFAToken, value);
+        }
+
+        private string GenerateTwoFAToken()
+        {
+            var rnd = new Random();
+            return rnd.Next(100000, 999999).ToString();
+        }
+
         private bool _shouldSaveBiller;
 
         public BillPayViewModel(BillPaymentService billPaymentService)
@@ -191,10 +218,7 @@ namespace BankingAppTeamB.ViewModels
 
         public Visibility ErrorMessageVisibility =>
             string.IsNullOrWhiteSpace(ErrorMessage) ? Visibility.Collapsed : Visibility.Collapsed == Visibility.Visible ? Visibility.Visible : Visibility.Visible;
-        // dacă linia de mai sus dă dubios la formatter, pune exact:
-        // public Visibility ErrorMessageVisibility =>
-        //     string.IsNullOrWhiteSpace(ErrorMessage) ? Visibility.Collapsed : Visibility.Visible;
-
+        
         public string SelectedBillerName =>
             SelectedBiller?.Name ?? "No biller selected";
 
@@ -322,7 +346,25 @@ namespace BankingAppTeamB.ViewModels
                 }
 
                 Fee = _billPaymentService.CalculateFee(Amount);
-                CurrentStep = 3;
+                Requires2FA = _billPaymentService.Requires2FA(Amount);
+                CurrentStep = Requires2FA ? 3 : 4;
+                return;
+            }
+
+            if (CurrentStep == 3)
+            {
+                if (!Is2FAConfirmed)
+                {
+                    ErrorMessage = "You must confirm the 2FA step.";
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(TwoFAToken))
+                {
+                    TwoFAToken = GenerateTwoFAToken();
+                }
+
+                CurrentStep = 4;
             }
         }
 
@@ -332,7 +374,18 @@ namespace BankingAppTeamB.ViewModels
 
             if (CurrentStep > 1)
             {
-                CurrentStep--;
+                if (CurrentStep == 4 && Requires2FA)
+                {
+                    CurrentStep = 3;
+                }
+                else if (CurrentStep == 4 && !Requires2FA)
+                {
+                    CurrentStep = 2;
+                }
+                else
+                {
+                    CurrentStep--;
+                }
             }
         }
 
@@ -373,7 +426,8 @@ namespace BankingAppTeamB.ViewModels
                     BillerId = SelectedBiller.Id,
                     BillerReference = BillerReference,
                     Amount = Amount,
-                    IsPayInFull = false
+                    IsPayInFull = false,
+                    TwoFAToken = Requires2FA ? TwoFAToken : null
                 };
 
                 var result = await Task.Run(() => _billPaymentService.PayBill(dto));
@@ -406,7 +460,7 @@ namespace BankingAppTeamB.ViewModels
 
                 ReceiptNumber = result.ReceiptNumber;
                 Fee = result.Fee;
-                CurrentStep = 4;
+                CurrentStep = 5;
             }
             catch (Exception ex)
             {
@@ -433,6 +487,9 @@ namespace BankingAppTeamB.ViewModels
             SelectedAccount = null;
             IsPayInFull = false;
             ShouldSaveBiller = false;
+            Requires2FA = false;
+            Is2FAConfirmed = false;
+            TwoFAToken = string.Empty;
         }
 
         private void ApplySavedDefaultsForSelectedBiller()

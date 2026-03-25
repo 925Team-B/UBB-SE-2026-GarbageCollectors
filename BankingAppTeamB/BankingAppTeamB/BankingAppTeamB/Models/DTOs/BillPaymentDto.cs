@@ -8,5 +8,6 @@ namespace BankingAppTeamB.Models.DTOs
 		public string BillerReference { get; set; }
 		public decimal Amount { get; set; }
 		public bool IsPayInFull { get; set; }
+		public string? TwoFAToken { get; set; }
 	}
 }

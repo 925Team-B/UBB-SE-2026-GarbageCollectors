@@ -9,7 +9,6 @@ public static class ConnectionConfigHelper
     public static string GetConnectionString()
     {
         var config = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json")
             .Build();
 

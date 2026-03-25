@@ -64,6 +64,11 @@ namespace BankingAppTeamB.Services
             billPaymentRepository.DeleteSavedBiller(id);
         }
 
+        public bool Requires2FA(decimal amount)
+        {
+            return amount >= 1000;
+        }
+
         public BillPayment PayBill(BillPaymentDto dto)
         {
             var biller = billPaymentRepository.GetBillerById(dto.BillerId);
@@ -85,7 +90,7 @@ namespace BankingAppTeamB.Services
                 RelatedEntityId = 0
             };
 
-            var transaction = transactionPipelineService.RunPipeline(context);
+            var transaction = transactionPipelineService.RunPipeline(context, dto.TwoFAToken);
 
             string receiptNumber = $"RCP-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper()}";
 
