@@ -10,40 +10,40 @@ namespace BankingAppTeamB.Views
 {
     public sealed partial class BillPayPage : Page
     {
-        private readonly BillPayViewModel _viewModel;
+        public BillPayViewModel ViewModel { get; }
 
         public BillPayPage()
         {
             InitializeComponent();
-            _viewModel = new BillPayViewModel(ServiceLocator.BillPaymentService);
-            DataContext = _viewModel;
-            _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+            ViewModel = new BillPayViewModel(ServiceLocator.BillPaymentService);
+            DataContext = ViewModel;
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            await _viewModel.LoadAsync();
+            await ViewModel.LoadAsync();
         }
 
         private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                _viewModel.SearchCommand.Execute(null);
+                ViewModel.SearchCommand.Execute(null);
             }
         }
 
         private void CategoryCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _viewModel.SearchCommand.Execute(null);
+            ViewModel.SearchCommand.Execute(null);
         }
 
         private void BillersList_ItemClick(object sender, ItemClickEventArgs e)
         {
             if (e.ClickedItem is Biller biller)
             {
-                _viewModel.SelectBillerCommand.Execute(biller);
+                ViewModel.SelectBillerCommand.Execute(biller);
             }
         }
 
@@ -51,7 +51,7 @@ namespace BankingAppTeamB.Views
         {
             if (e.ClickedItem is SavedBiller savedBiller)
             {
-                _viewModel.SelectBillerCommand.Execute(savedBiller);
+                ViewModel.SelectBillerCommand.Execute(savedBiller);
             }
         }
 
@@ -59,11 +59,11 @@ namespace BankingAppTeamB.Views
         {
             if (!double.IsNaN(sender.Value) && !double.IsInfinity(sender.Value))
             {
-                _viewModel.Amount = Convert.ToDecimal(sender.Value);
+                ViewModel.Amount = Convert.ToDecimal(sender.Value);
             }
             else
             {
-                _viewModel.Amount = 0;
+                ViewModel.Amount = 0;
             }
         }
 
@@ -73,7 +73,7 @@ namespace BankingAppTeamB.Views
             {
                 if (AmountBox != null)
                 {
-                    double newValue = Convert.ToDouble(_viewModel.Amount);
+                    double newValue = Convert.ToDouble(ViewModel.Amount);
 
                     if (AmountBox.Value != newValue)
                     {
@@ -85,72 +85,90 @@ namespace BankingAppTeamB.Views
     }
 }
 
-/*using BankingAppTeamB.Configuration;
-using BankingAppTeamB.Models;
-using BankingAppTeamB.ViewModels;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
-using System;
+//using BankingAppTeamB.Configuration;
+//using BankingAppTeamB.Models;
+//using BankingAppTeamB.ViewModels;
+//using Microsoft.UI.Xaml.Controls;
+//using Microsoft.UI.Xaml.Navigation;
+//using System;
+//using System.ComponentModel;
 
-namespace BankingAppTeamB.Views
-{
-    public sealed partial class BillPayPage : Page
-    {
-        private readonly BillPayViewModel _viewModel;
+//namespace BankingAppTeamB.Views
+//{
+//    public sealed partial class BillPayPage : Page
+//    {
+//        public BillPayViewModel ViewModel { get; }
 
-        public BillPayPage()
-        {
-            InitializeComponent();
-            _viewModel = new BillPayViewModel(ServiceLocator.BillPaymentService);
-            DataContext = _viewModel;
-        }
+//        public BillPayPage()
+//        {
+//            InitializeComponent();
+//            ViewModel = new BillPayViewModel(ServiceLocator.BillPaymentService);
+//            DataContext = ViewModel;
+//            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+//        }
 
-        protected override async void OnNavigatedTo(NavigationEventArgs e)
-        {
-            base.OnNavigatedTo(e);
-            await _viewModel.LoadAsync();
-        }
+//        protected override async void OnNavigatedTo(NavigationEventArgs e)
+//        {
+//            base.OnNavigatedTo(e);
+//            await ViewModel.LoadAsync();
+//        }
 
-        private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
-        {
-            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
-            {
-                _viewModel.SearchCommand.Execute(null);
-            }
-        }
+//        private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+//        {
+//            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+//            {
+//                ViewModel.SearchCommand.Execute(null);
+//            }
+//        }
 
-        private void CategoryCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            _viewModel.SearchCommand.Execute(null);
-        }
+//        private void CategoryCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+//        {
+//            ViewModel.SearchCommand.Execute(null);
+//        }
 
-        private void BillersList_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            if (e.ClickedItem is Biller biller)
-            {
-                _viewModel.SelectBillerCommand.Execute(biller);
-            }
-        }
+//        private void BillersList_ItemClick(object sender, ItemClickEventArgs e)
+//        {
+//            if (e.ClickedItem is Biller biller)
+//            {
+//                ViewModel.SelectBillerCommand.Execute(biller);
+//            }
+//        }
 
-        private void SavedBillersList_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            if (e.ClickedItem is SavedBiller savedBiller)
-            {
-                _viewModel.SelectBillerCommand.Execute(savedBiller);
-            }
-        }
+//        private void SavedBillersList_ItemClick(object sender, ItemClickEventArgs e)
+//        {
+//            if (e.ClickedItem is SavedBiller savedBiller)
+//            {
+//                ViewModel.SelectBillerCommand.Execute(savedBiller);
+//            }
+//        }
 
-        private void AmountBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
-        {
-            if (!double.IsNaN(sender.Value) && !double.IsInfinity(sender.Value))
-            {
-                _viewModel.Amount = Convert.ToDecimal(sender.Value);
-            }
-            else
-            {
-                _viewModel.Amount = 0;
-            }
-        }
-    }
-}
-*/
+//        private void AmountBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+//        {
+//            if (!double.IsNaN(sender.Value) && !double.IsInfinity(sender.Value))
+//            {
+//                ViewModel.Amount = Convert.ToDecimal(sender.Value);
+//            }
+//            else
+//            {
+//                ViewModel.Amount = 0;
+//            }
+//        }
+
+//        private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+//        {
+//            if (e.PropertyName == nameof(BillPayViewModel.Amount))
+//            {
+//                if (AmountBox != null)
+//                {
+//                    double newValue = Convert.ToDouble(ViewModel.Amount);
+
+//                    if (AmountBox.Value != newValue)
+//                    {
+//                        AmountBox.Value = newValue;
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
+

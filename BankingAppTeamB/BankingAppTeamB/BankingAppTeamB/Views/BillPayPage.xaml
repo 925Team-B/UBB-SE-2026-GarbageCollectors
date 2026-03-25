@@ -14,7 +14,6 @@
     <ScrollViewer>
         <StackPanel Spacing="20" Padding="24">
 
-            <!-- STEP 1 -->
             <Border
                 Padding="20"
                 CornerRadius="12"
@@ -110,7 +109,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- STEP 2 -->
             <Border
                 Padding="20"
                 CornerRadius="12"
@@ -161,6 +159,9 @@
                         </ComboBox.ItemTemplate>
                     </ComboBox>
 
+                    <ToggleSwitch Header="Save this biller for future payments"
+                                  IsOn="{Binding ShouldSaveBiller, Mode=TwoWay}" />
+
                     <TextBlock Text="{Binding ErrorMessage}"
                                Foreground="Red"
                                TextWrapping="Wrap"
@@ -175,7 +176,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- STEP 3 -->
             <Border
                 Padding="20"
                 CornerRadius="12"
@@ -232,7 +232,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- STEP 4 -->
             <Border
                 Padding="20"
                 CornerRadius="12"
@@ -329,7 +328,7 @@
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="models:SavedBiller">
                                     <StackPanel Padding="6">
-                                        <TextBlock Text="{Binding Nickname, FallbackValue=Saved Biller}"
+                                        <TextBlock Text="{Binding Nickname}"
                                                    FontWeight="SemiBold" />
                                         <TextBlock Text="{Binding Biller.Name}"
                                                    FontSize="14" />
@@ -368,7 +367,8 @@
 
                     <TextBlock Text="{Binding ErrorMessage}"
                                Foreground="Red"
-                               TextWrapping="Wrap" />
+                               TextWrapping="Wrap"
+                               Visibility="{Binding ErrorMessageVisibility}" />
 
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <Button Content="Cancel"
@@ -430,7 +430,8 @@
 
                     <TextBlock Text="{Binding ErrorMessage}"
                                Foreground="Red"
-                               TextWrapping="Wrap" />
+                               TextWrapping="Wrap"
+                               Visibility="{Binding ErrorMessageVisibility}" />
 
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <Button Content="Next"
@@ -474,6 +475,11 @@
                     </StackPanel>
 
                     <StackPanel Spacing="4">
+                        <TextBlock Text="Total" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding TotalText}" />
+                    </StackPanel>
+
+                    <StackPanel Spacing="4">
                         <TextBlock Text="Source account" FontWeight="SemiBold" />
                         <TextBlock Text="{Binding SelectedAccount.AccountName}" />
                         <TextBlock Text="{Binding SelectedAccount.IBAN}" />
@@ -481,13 +487,14 @@
 
                     <TextBlock Text="{Binding ErrorMessage}"
                                Foreground="Red"
-                               TextWrapping="Wrap" />
+                               TextWrapping="Wrap"
+                               Visibility="{Binding ErrorMessageVisibility}" />
 
                     <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Button Content="Pay"
+                        <Button Content="Back"
+                                Command="{Binding BackCommand}" />
+                        <Button Content="Confirm"
                                 Command="{Binding PayBillCommand}" />
-                        <Button Content="Cancel"
-                                Command="{Binding CancelCommand}" />
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -498,24 +505,30 @@
                 CornerRadius="12"
                 Background="White"
                 Visibility="{Binding CurrentStep, Converter={StaticResource StepToVisibility}, ConverterParameter=4}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="16">
 
                     <TextBlock Text="Payment Successful"
-                               FontSize="22"
+                               FontSize="24"
                                FontWeight="SemiBold" />
 
-                    <TextBlock Text="Receipt number"
-                               FontWeight="SemiBold" />
+                    <TextBlock Text="Your receipt number"
+                               FontSize="14"
+                               Opacity="0.7" />
 
                     <TextBlock Text="{Binding ReceiptNumber}"
-                               FontSize="18" />
+                               FontSize="28"
+                               FontWeight="Bold"
+                               TextWrapping="Wrap" />
 
-                    <Button Content="Back to Home"
-                            Command="{Binding CancelCommand}" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="Pay Another Bill"
+                                Command="{Binding PayAnotherBillCommand}" />
+                        <Button Content="Done"
+                                Command="{Binding CancelCommand}" />
+                    </StackPanel>
                 </StackPanel>
             </Border>
 
         </StackPanel>
     </ScrollViewer>
 </Page>-->
- 
