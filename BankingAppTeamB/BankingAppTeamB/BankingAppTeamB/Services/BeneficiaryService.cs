@@ -21,9 +21,20 @@ namespace BankingAppTeamB.Services
         {
             return repo.GetByUserId(userId);
         }
-
+        public bool ValidateIBAN(string iban)
+        {
+            if (string.IsNullOrWhiteSpace(iban)) return false;
+            if (iban.Length < 15 || iban.Length > 34) return false;
+            if (!char.IsLetter(iban[0]) || !char.IsLetter(iban[1])) return false;
+            if (!char.IsDigit(iban[2]) || !char.IsDigit(iban[3])) return false;
+            return true;
+        }
         public Beneficiary Add(string name, string iban, int uid)
         {
+            if (ValidateIBAN(iban) == false)
+            {
+                throw new ArgumentException("Invalid IBAN format.");
+            }
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException("Name cannot be empty");
@@ -70,6 +81,10 @@ namespace BankingAppTeamB.Services
 
         internal object Add(string name, string iban, string newBankName, int uid)
         {
+            if (ValidateIBAN(iban) == false)
+            {
+                throw new ArgumentException("Invalid IBAN format.");
+            }
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException("Name cannot be empty");
