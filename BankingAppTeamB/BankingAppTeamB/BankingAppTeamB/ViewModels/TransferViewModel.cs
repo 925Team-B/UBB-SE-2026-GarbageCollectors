@@ -208,6 +208,12 @@ public class TransferViewModel : ViewModelBase
     {
         ErrorMessage = string.Empty;
 
+        if (CurrentStep == 2 && !IsIBANValid)
+        {
+            ErrorMessage = "Cannot continue: IBAN is invalid. Please correct or start again.";
+            return; // stop advancing
+        }
+
         if (CurrentStep == 3)
         {
             CurrentStep = Requires2FA ? 4 : 5;
@@ -227,7 +233,7 @@ public class TransferViewModel : ViewModelBase
                 TwoFAToken = GenerateTwoFAToken();
             }
 
-            CurrentStep = 5; // move to Confirm Transfer
+            CurrentStep = 5;
             return;
         }
 
@@ -302,14 +308,21 @@ public class TransferViewModel : ViewModelBase
         try
         {
             IsIBANValid = transferService.ValidateIBAN(iban);
-            BankName = IsIBANValid
-                ? transferService.GetBankNameFromIBAN(iban)
-                : string.Empty;
+            if (!IsIBANValid)
+            {
+                // Navigate to Invalid IBAN step
+                CurrentStep = 7;
+            }
+            else
+            {
+                BankName = transferService.GetBankNameFromIBAN(iban);
+            }
         }
         catch
         {
             IsIBANValid = false;
             BankName = string.Empty;
+            CurrentStep = 7; // go to Invalid IBAN step if exception
         }
     }
 
