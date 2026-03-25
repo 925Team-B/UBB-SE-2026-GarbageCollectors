@@ -163,6 +163,7 @@
                 <Button Content="Start Again" Command="{x:Bind ViewModel.SendAgainCommand}" 
             HorizontalAlignment="Center" Width="200"/>
             </StackPanel>
+
         </StackPanel>
     </ScrollViewer>
 </Page>
