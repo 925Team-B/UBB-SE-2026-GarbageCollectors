@@ -56,8 +56,7 @@
                            HorizontalAlignment="Center"/>
                 <TextBox Header="Recipient Name" Text="{x:Bind ViewModel.RecipientName, Mode=TwoWay}"/>
                 <TextBox Header="Recipient IBAN" Text="{x:Bind ViewModel.RecipientIBAN, Mode=TwoWay}"/>
-                <TextBlock Text="{x:Bind ViewModel.BankName, Mode=OneWay}" 
-                           FontStyle="Italic"/>
+                <TextBlock Text="{x:Bind ViewModel.BankName, Mode=OneWay}"/>
                 <Button Content="Next" Command="{x:Bind ViewModel.NextStepCommand}" 
                         HorizontalAlignment="Center" Width="150"/>
             </StackPanel>
@@ -76,8 +75,7 @@
                     <ComboBoxItem Content="USD"/>
                     <ComboBoxItem Content="RON"/>
                 </ComboBox>
-                <TextBlock Text="{x:Bind ViewModel.FxPreviewText, Mode=OneWay}" 
-                           FontStyle="Italic"/>
+                <TextBlock Text="{x:Bind ViewModel.FxPreviewText, Mode=OneWay}"/>
                 <Button Content="Next" Command="{x:Bind ViewModel.NextStepCommand}" 
                         HorizontalAlignment="Center" Width="150"/>
             </StackPanel>
